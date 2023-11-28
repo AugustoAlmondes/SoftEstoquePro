@@ -2,18 +2,15 @@ from pessoa import Pessoa
 import mysql.connector as mysql
 
 class Cadastro:
-    
-    __slots__ = ['mydb','mycursor','_lista_pessoas']
 
     def __init__(self):
-        self._lista_pessoas = []
         self.mydb = self.conectar()
         self.mycursor = self.mydb.cursor()
 
     def remover_produto(self,produto_remover):
         mydb = self.conectar()
         mycursor = mydb.cursor()
-        
+
         sql = f'DELETE FROM produtos WHERE id = {produto_remover};'
         print(sql)
         mycursor.execute(sql)       
@@ -25,7 +22,7 @@ class Cadastro:
         print('executou')        
         mydb.close()
         print('executou')
-        
+
         return True  
 
     def cadastra_ususario(self,cpf,nome,endereco,nascimento,senha,usuario):
@@ -34,13 +31,13 @@ class Cadastro:
             print('entrou')
             mydb = self.conectar()
             mycursor = mydb.cursor()
-            
+
             # banco_dados = self.verificar_banco_dados(usuario)
-            
+
             sql = f'INSERT INTO usuarios (nome, endereco, cpf, nascimento, senha, usuario) VALUES ("{nome}", "{endereco}","{cpf}", "{nascimento}", "{senha}", "{usuario}")'
-            
+
             mycursor.execute(sql)
-            
+
             mydb.commit()
             mycursor.close()
             mydb.close()
@@ -48,20 +45,20 @@ class Cadastro:
         else:
             print("retornou falso")
             return False
-        
+
     # def busca_login(self,dado,parametro_busca):
     #     mydb = self.conectar()
     #     mycursor = self.mydb.cursor()
-        
+
     #     # banco_dados = self.verificar_banco_dados(usuario)
     #     # print("O banco de dados eh: ",usuarios)
-        
+
     #     sql = f'SELECT * from usuarios where {parametro_busca} = "{dado}";'
     #     # val = parametro_busca
-        
+
     #     mycursor.execute(sql)
     #     result = mycursor.fetchall()
-        
+
     #     # nome, endereco = result[0][2], result[0][3]
     #     # mydb.commit()
     #     mycursor.close()
@@ -75,10 +72,10 @@ class Cadastro:
     def busca(self,dado,tabela,parametro_busca):
         mydb = self.conectar()
         mycursor = self.mydb.cursor()
-        
+
         # banco_dados = self.verificar_banco_dados(usuario)
         # print("O banco de dados eh: ",banco_dados)
-        
+
         sql = f'SELECT * from {tabela} where {parametro_busca} = "{dado}";'
         print(sql)
         # val = parametro_busca

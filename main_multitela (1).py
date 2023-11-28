@@ -76,14 +76,15 @@ class Main(QMainWindow, Ui_Main):
         self.setupUi(self)
 
         self.server = server_cliente('10.180.42.112',4050)
-        self.log = Login()
-        self.cad = Cadastro()
+        # self.log = Login()
+        # self.cad = Cadastro()
         # self.prod = Produto()
-        self.opcao_selecionada = None
         
+        self.opcao_selecionada = None
+
         self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaCadastro) #botao cadastrar tela administrador
         self.tela_bem_vindo.pushButton_7.clicked.connect(self.abrirTelaProduto)
-        
+
         # funções dos botões da tela principal
         self.tela_inicial.pushButton_3.clicked.connect(self.sair) # funções dos botões da tela principal
         self.tela_inicial.pushButton_2.clicked.connect(self.abrirTelaLogin)
@@ -94,12 +95,12 @@ class Main(QMainWindow, Ui_Main):
 
         self.tela_login.pushButton.clicked.connect(self.botaoLogin)
         # self.tela_login.pushButton_2.clicked.connect(self.abrirTelaCadastro)
-        
+
         self.tela_bem_vindo.pushButton_6.clicked.connect(self.voltarTelaInicial)
         self.tela_entregador.pushButton_6.clicked.connect(self.voltarTelaInicial)
         self.tela_fornecedores.pushButton_6.clicked.connect(self.voltarTelaInicial)
         self.tela_funcionario.pushButton_6.clicked.connect(self.voltarTelaInicial)
-        
+
         # TELA PRODUTO
         self.tela_produto.pushButton.clicked.connect(self.botaoCadastrarProduto)
         self.tela_produto.pushButton_2.clicked.connect(self.TelaProdutoFrameListar)
@@ -112,11 +113,26 @@ class Main(QMainWindow, Ui_Main):
 
     def botaoRemoverProduto(self):
         produto_remove = self.tela_produto.lineEdit_6.text()
-        
+
+
         if not(produto_remove == ''):
-            if not (self.cad.busca(produto_remove,'produtos','id')):
-                self.cad.remover_produto(produto_remove)
-                QMessageBox.information(None,'POOII', 'Produto removido com Sucesso!')
+
+            concatena = f'busca*{produto_remove}*produtos*id'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+
+            print(result)
+            if(result):
+
+                concatena = f'remover_produto*{produto_remove}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+
+                # self.cad.remover_produto(produto_remove)
+                if (result):                    
+                    QMessageBox.information(None,'POOII', 'Produto removido com Sucesso!')
                 # self.tela_produto.lineEdit_2.setText('')
             else:
                 QMessageBox.information(None,'POOII', 'Erro ao remover produto.\nID inexistente')
@@ -130,18 +146,18 @@ class Main(QMainWindow, Ui_Main):
         preco = self.tela_produto.lineEdit_5.text()
         fornecedor = self.tela_produto.lineEdit_4.text()
         data_compra = self.tela_produto.lineEdit_3.text()
-        
+
         if not(produto == '' or preco == '' or fornecedor == '' or data_compra== ''):
-            
+
             concatena = f'cadastra_produto*{produto}*{preco}*{fornecedor}*{data_compra}'
             self.server.send(concatena.encode())
             resposta = self.server.recv(2048)
             resposta = resposta.decode()
             print(resposta)
             print("----recebeu----")
-            
+
             # info_prod = Produto(produto,preco,fornecedor,data_compra)
-            
+
             # if(self.cad.cadastra_produto(produto, preco, fornecedor, data_compra)):
             if(resposta):
                 QMessageBox.information(None,'POOII', 'Produto cadastrado com Sucesso!')
@@ -221,21 +237,28 @@ class Main(QMainWindow, Ui_Main):
             # usuario = self.cad.procurar_dado_especifico('usuario','usuarios','cpf',cpf)
             # print('Usuario retornado:',usuario)
             print('usuario login',usuario)
-            # if (self.cad.buscar_usuario(cpf,senha)):
-            if usuario == 'Administrador':
-                self.QtStack.setCurrentIndex(3)
-            elif usuario == 'Funcionario':
-                self.QtStack.setCurrentIndex(4)
-            elif usuario == 'Fornecedor':
-                self.QtStack.setCurrentIndex(5)
-            elif usuario == 'Entregador':
-                self.QtStack.setCurrentIndex(6)
+            
+            concatena = f'buscar_usuario*{cpf}*{senha}'
+
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            
+            if (result):
+                if usuario == 'Administrador':
+                    self.QtStack.setCurrentIndex(3)
+                elif usuario == 'Funcionario':
+                    self.QtStack.setCurrentIndex(4)
+                elif usuario == 'Fornecedor':
+                    self.QtStack.setCurrentIndex(5)
+                elif usuario == 'Entregador':
+                    self.QtStack.setCurrentIndex(6)
             else:
-                QMessageBox.information(None,'POOII', 'Erro na busca do Usuário')
+                QMessageBox.information(None,'POOII', 'CPF ou senha não encontrado')
                 self.tela_login.lineEdit.setText('')
                 self.tela_login.lineEdit_2.setText('')
         else:
-            QMessageBox.information(None,'POOII', 'CPF ou senha não encontrado')
+            QMessageBox.information(None,'POOII', 'Erro na busca do Usuário')
             self.tela_login.lineEdit.setText('')
             self.tela_login.lineEdit_2.setText('')
         usuario = None
@@ -270,6 +293,13 @@ class Main(QMainWindow, Ui_Main):
         lista_produtos = lista_produtos.decode()
         print("Lista de produtos",lista_produtos)
 
+        lista_produtos = eval(lista_produtos)
+        # lista_produtos = list(lista_produtos)
+        # lista_produtos = map(lambda x: tuple(x),lista_produtos)
+        # lista_produtos = list(lista_produtos)
+        
+        print("Lista de produtos",lista_produtos[0][0])
+        # print(lista_produtos[0])
 
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))
         self.tela_produto.tableWidget_3.setColumnCount(4)
@@ -277,7 +307,7 @@ class Main(QMainWindow, Ui_Main):
         for i in range (0, len(lista_produtos)):
             for j in range(0, 4):
                 self.tela_produto.tableWidget_3.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_produtos[i][j])))
-        
+
     def voltarTelaInicial(self):
         self.QtStack.setCurrentIndex(0)
         self.tela_login.lineEdit.setText('')
