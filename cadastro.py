@@ -29,7 +29,7 @@ class Cadastro:
         return True  
 
     def cadastra_ususario(self,cpf,nome,endereco,nascimento,senha,usuario):
-        
+        print("entrou no cadastrar_usuario")
         if (self.busca(cpf,'usuarios','cpf')):
             print('entrou')
             mydb = self.conectar()
@@ -195,16 +195,16 @@ class Cadastro:
         mydb.close
         return lista_produtos
     
-    def cadastra_produto(self, info_produto):
-        
-        if (self.busca(info_produto.produto,'produtos','produto')):
+    def cadastra_produto(self, produto, preco, fornecedor, data_compra):
+        print("Entrou no cadastro_produto")
+        if (self.busca(produto,'produtos','produto')):
             print('entrou')
             mydb = self.conectar()
             mycursor = mydb.cursor()
             
             # banco_dados = self.verificar_banco_dados(usuario)
             
-            sql = f'insert into produtos (produto, preco, fornecedor, dataCompra) values ("{info_produto.produto}","{info_produto.preco}" , "{info_produto.fornecedor}", "{info_produto.data_compra}")'
+            sql = f'insert into produtos (produto, preco, fornecedor, dataCompra) values ("{produto}","{preco}" , "{fornecedor}", "{data_compra}")'
             # sql = f'insert into produtos (produto, preco, fornecedor, dataCompra) values ("arroz",17.00,"carvalho","17/03");'
             mycursor.execute(sql)
         
@@ -213,8 +213,9 @@ class Cadastro:
             mydb.close()
             return True
         else:
+            print("produto ja existe")
             mydb.commit()
             mycursor.close()
             mydb.close()
-            print("retornou falso")
+            # print("retornou falso")
             return False

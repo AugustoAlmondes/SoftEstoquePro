@@ -142,7 +142,7 @@ class Main(QMainWindow, Ui_Main):
             
             # info_prod = Produto(produto,preco,fornecedor,data_compra)
             
-            # if(self.cad.cadastra_produto(info_prod)):
+            # if(self.cad.cadastra_produto(produto, preco, fornecedor, data_compra)):
             if(resposta):
                 QMessageBox.information(None,'POOII', 'Produto cadastrado com Sucesso!')
             else:
