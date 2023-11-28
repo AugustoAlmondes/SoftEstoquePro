@@ -221,15 +221,15 @@ class Main(QMainWindow, Ui_Main):
             # usuario = self.cad.procurar_dado_especifico('usuario','usuarios','cpf',cpf)
             # print('Usuario retornado:',usuario)
             print('usuario login',usuario)
-            if (self.cad.buscar_usuario(cpf,senha)):
-                if usuario == 'Administrador':
-                    self.QtStack.setCurrentIndex(3)
-                elif usuario == 'Funcionario':
-                    self.QtStack.setCurrentIndex(4)
-                elif usuario == 'Fornecedor':
-                    self.QtStack.setCurrentIndex(5)
-                elif usuario == 'Entregador':
-                    self.QtStack.setCurrentIndex(6)
+            # if (self.cad.buscar_usuario(cpf,senha)):
+            if usuario == 'Administrador':
+                self.QtStack.setCurrentIndex(3)
+            elif usuario == 'Funcionario':
+                self.QtStack.setCurrentIndex(4)
+            elif usuario == 'Fornecedor':
+                self.QtStack.setCurrentIndex(5)
+            elif usuario == 'Entregador':
+                self.QtStack.setCurrentIndex(6)
             else:
                 QMessageBox.information(None,'POOII', 'Erro na busca do Usuário')
                 self.tela_login.lineEdit.setText('')
