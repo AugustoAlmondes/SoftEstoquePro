@@ -1,5 +1,5 @@
 import sys
-import mysql.connector as mysql
+# import mysql.connector as mysql
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
@@ -13,12 +13,12 @@ from Telas.tela_funcionario import * #FUNCIONARIO
 from Telas.tela_fornecedores import * #FONECEDOR
 
 from server_cliente import *
-# from server_servidor import *
+from server_servidor import *
 
-from pessoa import Pessoa
-from cadastro import Cadastro
-from login import Login
-from produto import Produto
+# from pessoa import Pessoa
+# from cadastro import Cadastro
+# from login import Login
+# from produto import Produto
 
 class Ui_Main(QtWidgets.QWidget):
     def setupUi(self, Main):
@@ -198,6 +198,10 @@ class Main(QMainWindow, Ui_Main):
 
                 if (resposta):
                     QMessageBox.information(None,'POOII', 'Cadastro realizado com sucesso!')
+                    self.tela_cadastro.radioButton.toggled.connect((self.onClicked(self.radioButton)))
+                    self.tela_cadastro.radioButton_2.toggled.connect((self.onClicked(self.radioButton2)))
+                    self.tela_cadastro.radioButton_3.toggled.connect((self.onClicked(self.radioButton3)))
+                    self.tela_cadastro.radioButton_4.toggled.connect((self.onClicked(self.radioButton4)))
                 else:
                     QMessageBox.information(None,'POOII', 'Erro ao realizar o Cadastro')
             else:
@@ -209,6 +213,8 @@ class Main(QMainWindow, Ui_Main):
         self.QtStack.setCurrentIndex(3)
         self.limpar_campos_cad()
         usuario = None
+
+        
 
     def limpar_campos_cad(self):
             self.tela_cadastro.lineEdit.setText('')
@@ -326,10 +332,10 @@ class Main(QMainWindow, Ui_Main):
     def verificar_usuario(self):
         usuario = None
         self.tela_cadastro.radioButton.toggled.connect(lambda: self.onClicked(self.radioButton))
-        self.tela_cadastro.radioButton_2.toggled.connect(lambda: self.onClicked(self.radioButton2))
-        self.tela_cadastro.radioButton_3.toggled.connect(lambda: self.onClicked(self.radioButton3))
-        self.tela_cadastro.radioButton_4.toggled.connect(lambda: self.onClicked(self.radioButton4))
-
+        self.tela_cadastro.radioButton_2.toggled.connect(lambda: self.onClicked(self.radioButton_2))
+        self.tela_cadastro.radioButton_3.toggled.connect(lambda: self.onClicked(self.radioButton_3))
+        self.tela_cadastro.radioButton_4.toggled.connect(lambda: self.onClicked(self.radioButton_4))
+        
         if self.tela_cadastro.radioButton.isChecked():
             usuario = self.tela_cadastro.radioButton.text()
         if self.tela_cadastro.radioButton_2.isChecked():
@@ -340,6 +346,7 @@ class Main(QMainWindow, Ui_Main):
             usuario = self.tela_cadastro.radioButton_4.text()
 
         print(usuario)
+
         return usuario
 
 if __name__ == '__main__':
