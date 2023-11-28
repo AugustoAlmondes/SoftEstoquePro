@@ -254,14 +254,13 @@ class Main(QMainWindow, Ui_Main):
         self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_4)
     
     def ListarProdutos(self):
-        lista_produtos = self.cad.ListarProdutos()
-        
+        #lista_produtos = self.cad.ListarProdutos()
         concatena = f'ListarProdutos'
         self.server.send(concatena.encode())
         lista_produtos = self.server.recv(2048)
         lista_produtos = lista_produtos.decode()
-        print("----recebeu----")
-        
+
+
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))
         self.tela_produto.tableWidget_3.setColumnCount(4)
 
