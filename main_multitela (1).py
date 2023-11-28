@@ -75,7 +75,7 @@ class Main(QMainWindow, Ui_Main):
         super(Main, self).__init__(None)
         self.setupUi(self)
 
-        self.server = server_cliente('10.180.41.157',4050)
+        self.server = server_cliente('10.180.42.112',4050)
         self.log = Login()
         self.cad = Cadastro()
         # self.prod = Produto()
@@ -254,19 +254,13 @@ class Main(QMainWindow, Ui_Main):
         self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_4)
     
     def ListarProdutos(self):
-        mydb = self.cad.conectar()
-        mycursor = mydb.cursor()
-        
-        mycursor.execute("SELECT * FROM produtos")
-        lista_produtos = mycursor.fetchall()
+        lista_produtos = self.cad.ListarProdutos()
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))
         self.tela_produto.tableWidget_3.setColumnCount(4)
 
         for i in range (0, len(lista_produtos)):
             for j in range(0, 4):
                 self.tela_produto.tableWidget_3.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_produtos[i][j])))
-        
-        mydb.close
         
     def voltarTelaInicial(self):
         self.QtStack.setCurrentIndex(0)

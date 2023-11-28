@@ -185,6 +185,16 @@ class Cadastro:
                 
     #     return banco_dados
     
+    def ListarProdutos(self):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+        
+        mycursor.execute("SELECT * FROM produtos")
+        lista_produtos = mycursor.fetchall()
+        
+        mydb.close
+        return lista_produtos
+    
     def cadastra_produto(self, info_produto):
         
         if (self.busca(info_produto.produto,'produtos','produto')):
