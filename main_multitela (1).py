@@ -132,9 +132,18 @@ class Main(QMainWindow, Ui_Main):
         data_compra = self.tela_produto.lineEdit_3.text()
         
         if not(produto == '' or preco == '' or fornecedor == '' or data_compra== ''):
-            info_prod = Produto(produto,preco,fornecedor,data_compra)
             
-            if(self.cad.cadastra_produto(info_prod)):
+            concatena = f'cadastra_produto*{produto}*{preco}*{fornecedor}*{data_compra}'
+            self.server.send(concatena.encode())
+            resposta = self.server.recv(2048)
+            resposta = resposta.decode()
+            print(resposta)
+            print("----recebeu----")
+            
+            # info_prod = Produto(produto,preco,fornecedor,data_compra)
+            
+            # if(self.cad.cadastra_produto(info_prod)):
+            if(resposta):
                 QMessageBox.information(None,'POOII', 'Produto cadastrado com Sucesso!')
             else:
                 QMessageBox.information(None,'POOII', 'Erro ao realizar o Cadastro do produto')
@@ -254,11 +263,12 @@ class Main(QMainWindow, Ui_Main):
         self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_4)
     
     def ListarProdutos(self):
-        #lista_produtos = self.cad.ListarProdutos()
+        # lista_produtos = self.cad.ListarProdutos()
         concatena = f'ListarProdutos'
         self.server.send(concatena.encode())
         lista_produtos = self.server.recv(2048)
         lista_produtos = lista_produtos.decode()
+        print("Lista de produtos",lista_produtos)
 
 
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))
