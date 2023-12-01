@@ -1,5 +1,5 @@
 import socket
-from cadastro import *
+from backend.cadastro import *
 import threading
 # from database.senha import senha
 
@@ -59,6 +59,6 @@ class Servidor():
 
     
 if __name__ == '__main__':
-    print(f'Ip do servidor: 10.180.42.112\n\n')
-    c = Servidor('10.180.42.112')
+    print(f'Ip do servidor: 192.168.18.107\n\n')
+    c = Servidor('192.168.18.107')
     c.start()

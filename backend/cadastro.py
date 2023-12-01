@@ -1,4 +1,4 @@
-from pessoa import Pessoa
+# from pessoa import Pessoa
 import mysql.connector as mysql
 
 class Cadastro:
@@ -46,60 +46,29 @@ class Cadastro:
             print("retornou falso")
             return False
 
-    # def busca_login(self,dado,parametro_busca):
-    #     mydb = self.conectar()
-    #     mycursor = self.mydb.cursor()
 
-    #     # banco_dados = self.verificar_banco_dados(usuario)
-    #     # print("O banco de dados eh: ",usuarios)
-
-    #     sql = f'SELECT * from usuarios where {parametro_busca} = "{dado}";'
-    #     # val = parametro_busca
-
-    #     mycursor.execute(sql)
-    #     result = mycursor.fetchall()
-
-    #     # nome, endereco = result[0][2], result[0][3]
-    #     # mydb.commit()
-    #     mycursor.close()
-    #     mydb.close()
-    #     # return result
-    #     if len(result) != 0:
-    #         return True
-    #     else:
-    #         return False
-    
     def busca(self,dado,tabela,parametro_busca):
         mydb = self.conectar()
         mycursor = self.mydb.cursor()
 
-        # banco_dados = self.verificar_banco_dados(usuario)
-        # print("O banco de dados eh: ",banco_dados)
-
         sql = f'SELECT * from {tabela} where {parametro_busca} = "{dado}";'
         print(sql)
-        # val = parametro_busca
         
         mycursor.execute(sql)
         result = mycursor.fetchall()
-        
-        # nome, endereco = result[0][2], result[0][3]
-        # mydb.commit()
         mycursor.close()
         mydb.close()
-        # return result
+
         if len(result) == 0:
             print('Não existe na tabela')
             return True
         else:
             print('Existe na tabela')
             return False
-    
+
+
     def buscar_usuario(self,cpf,senha):
-        # banco_dados = 'usuarios'
-        # # banco_dados = self.verificar_banco_dados(usuario)
         
-        # print('Banco retornado',banco_dados)
         if not(self.busca(cpf,'usuarios',"cpf")):
             print('achou')
             sql = f'SELECT * from usuarios where cpf = "{cpf}" and senha = "{senha}";'
@@ -193,7 +162,9 @@ class Cadastro:
         return lista_produtos
     
     def cadastra_produto(self, produto, preco, fornecedor, data_compra):
+        
         print("Entrou no cadastro_produto")
+        
         if (self.busca(produto,'produtos','produto')):
             print('entrou')
             mydb = self.conectar()
@@ -209,10 +180,6 @@ class Cadastro:
             mycursor.close()
             mydb.close()
             return True
+        
         else:
-            print("produto ja existe")
-            mydb.commit()
-            mycursor.close()
-            mydb.close()
-            # print("retornou falso")
             return False

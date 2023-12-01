@@ -3,15 +3,14 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
-from Telas.tela_inicial import *
-from Telas.tela_cadastro import *
-from Telas.tela_produto import *
-from Telas.tela_login import *
-from Telas.tela_bem_vindo import * #ADMINISTRADOR
-from Telas.tela_entregador import * #ENTREGADOR
-from Telas.tela_funcionario import * #FUNCIONARIO
-from Telas.tela_fornecedores import * #FONECEDOR
-
+from frontend.tela_inicial import *
+from frontend.tela_cadastro import *
+from frontend.tela_produto import *
+from frontend.tela_login import *
+from frontend.tela_bem_vindo import * #ADMINISTRADOR
+from frontend.tela_entregador import * #ENTREGADOR
+from frontend.tela_funcionario import * #FUNCIONARIO
+from frontend.tela_fornecedores import * #FONECEDOR 
 from server_cliente import *
 from server_servidor import *
 
@@ -75,7 +74,7 @@ class Main(QMainWindow, Ui_Main):
         super(Main, self).__init__(None)
         self.setupUi(self)
 
-        self.server = server_cliente('10.180.42.112',4050)
+        self.server = server_cliente('192.168.18.107',4050)
         # self.log = Login()
         # self.cad = Cadastro()
         # self.prod = Produto()
@@ -148,21 +147,23 @@ class Main(QMainWindow, Ui_Main):
         data_compra = self.tela_produto.lineEdit_3.text()
 
         if not(produto == '' or preco == '' or fornecedor == '' or data_compra== ''):
-
+            print("contaceta")
             concatena = f'cadastra_produto*{produto}*{preco}*{fornecedor}*{data_compra}'
+            
             self.server.send(concatena.encode())
             resposta = self.server.recv(2048)
             resposta = resposta.decode()
+            
             print(resposta)
             print("----recebeu----")
 
             # info_prod = Produto(produto,preco,fornecedor,data_compra)
-
             # if(self.cad.cadastra_produto(produto, preco, fornecedor, data_compra)):
-            if(resposta):
+            
+            if resposta == True:
                 QMessageBox.information(None,'POOII', 'Produto cadastrado com Sucesso!')
             else:
-                QMessageBox.information(None,'POOII', 'Erro ao realizar o Cadastro do produto')
+                QMessageBox.information(None,'POOII', 'Produto ja cadastrado')
         else:
             QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
         self.tela_produto.lineEdit_2.setText('')
@@ -181,12 +182,6 @@ class Main(QMainWindow, Ui_Main):
         usuario = self.verificar_usuario()
 
         if usuario != None:
-            print(usuario)
-            print(nome)
-            print(cpf)
-            print(endereco)
-            print(senha)
-            print(nascimento)
             if not(nome == '' or endereco == '' or cpf == '' or nascimento == '' or senha == ''):
                 # p = Pessoa(cpf,nome,endereco,nascimento,senha,usuario)
                 concatena = f'cadastra_ususario*{cpf}*{nome}*{endereco}*{nascimento}*{senha}*{usuario}'
@@ -198,10 +193,6 @@ class Main(QMainWindow, Ui_Main):
 
                 if (resposta):
                     QMessageBox.information(None,'POOII', 'Cadastro realizado com sucesso!')
-                    self.tela_cadastro.radioButton.toggled.connect((self.onClicked(self.radioButton)))
-                    self.tela_cadastro.radioButton_2.toggled.connect((self.onClicked(self.radioButton2)))
-                    self.tela_cadastro.radioButton_3.toggled.connect((self.onClicked(self.radioButton3)))
-                    self.tela_cadastro.radioButton_4.toggled.connect((self.onClicked(self.radioButton4)))
                 else:
                     QMessageBox.information(None,'POOII', 'Erro ao realizar o Cadastro')
             else:
@@ -332,9 +323,9 @@ class Main(QMainWindow, Ui_Main):
     def verificar_usuario(self):
         usuario = None
         self.tela_cadastro.radioButton.toggled.connect(lambda: self.onClicked(self.radioButton))
-        self.tela_cadastro.radioButton_2.toggled.connect(lambda: self.onClicked(self.radioButton_2))
-        self.tela_cadastro.radioButton_3.toggled.connect(lambda: self.onClicked(self.radioButton_3))
-        self.tela_cadastro.radioButton_4.toggled.connect(lambda: self.onClicked(self.radioButton_4))
+        self.tela_cadastro.radioButton_2.toggled.connect(lambda: self.onClicked(self.radioButton2))
+        self.tela_cadastro.radioButton_3.toggled.connect(lambda: self.onClicked(self.radioButton3))
+        self.tela_cadastro.radioButton_4.toggled.connect(lambda: self.onClicked(self.radioButton4))
         
         if self.tela_cadastro.radioButton.isChecked():
             usuario = self.tela_cadastro.radioButton.text()
