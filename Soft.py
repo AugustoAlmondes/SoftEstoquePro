@@ -125,6 +125,10 @@ class Main(QMainWindow, Ui_Main):
         self.tela_usuario.pushButton_4.clicked.connect(self.TelaUsuarioRemover)
         self.tela_usuario.pushButton_5.clicked.connect(self.TelaUsuarioBuscar)
         self.tela_usuario.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
+        self.tela_usuario.pushButton_27.clicked.connect(self.botaoExibirAdministradores)
+        self.tela_usuario.pushButton_28.clicked.connect(self.botaoExibirFuncionario)
+        self.tela_usuario.pushButton_29.clicked.connect(self.botaoExibirFornecedor)
+        self.tela_usuario.pushButton_30.clicked.connect(self.botaoExibirEntregador)
 
     def botaoRemoverProduto(self):
         produto_remove = self.tela_produto.lineEdit_6.text()
@@ -313,8 +317,85 @@ class Main(QMainWindow, Ui_Main):
     def TelaUsuarioTipos(self):
         self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
 
-    def BuscarProduto(self):
 
+
+    def botaoExibirAdministradores(self):
+        
+        concatena = f'ListarUsuario*Administrador'
+        
+        self.server.send(concatena.encode())
+        lista_adm = self.server.recv(2048)
+        lista_adm = lista_adm.decode()
+        
+        lista_adm = eval(lista_adm)
+
+        self.tela_usuario.tableWidget.setRowCount(len(lista_adm))
+        self.tela_usuario.tableWidget.setColumnCount(6)
+
+        for i in range (0, len(lista_adm)):
+            for j in range(0, 6):
+                self.tela_usuario.tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_adm[i][j])))
+
+
+
+    def botaoExibirFuncionario(self):
+
+        concatena = f'ListarUsuario*Funcionario'
+
+        self.server.send(concatena.encode())
+        lista_adm = self.server.recv(2048)
+        lista_adm = lista_adm.decode()
+
+        lista_adm = eval(lista_adm)
+
+        self.tela_usuario.tableWidget.setRowCount(len(lista_adm))
+        self.tela_usuario.tableWidget.setColumnCount(6)
+
+        for i in range (0, len(lista_adm)):
+            for j in range(0, 6):
+                self.tela_usuario.tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_adm[i][j])))
+
+
+
+    def botaoExibirFornecedor(self):
+
+        concatena = f'ListarUsuario*Fornecedor'
+
+        self.server.send(concatena.encode())
+        lista_adm = self.server.recv(2048)
+        lista_adm = lista_adm.decode()
+
+        lista_adm = eval(lista_adm)
+
+        self.tela_usuario.tableWidget.setRowCount(len(lista_adm))
+        self.tela_usuario.tableWidget.setColumnCount(6)
+
+        for i in range (0, len(lista_adm)):
+            for j in range(0, 6):
+                self.tela_usuario.tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_adm[i][j])))
+
+
+
+    def botaoExibirEntregador(self):
+
+        concatena = f'ListarUsuario*Entregador'
+
+        self.server.send(concatena.encode())
+        lista_adm = self.server.recv(2048)
+        lista_adm = lista_adm.decode()
+
+        lista_adm = eval(lista_adm)
+
+        self.tela_usuario.tableWidget.setRowCount(len(lista_adm))
+        self.tela_usuario.tableWidget.setColumnCount(6)
+
+        for i in range (0, len(lista_adm)):
+            for j in range(0, 6):
+                self.tela_usuario.tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_adm[i][j])))
+
+
+
+    def BuscarProduto(self):
         produto_busca = self.tela_produto.lineEdit.text()
         if not(produto_busca == ''):
 
@@ -342,22 +423,17 @@ class Main(QMainWindow, Ui_Main):
                 
         else:
             QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
-    
+
+
+
     def ListarProdutos(self):
-        # lista_produtos = self.cad.ListarProdutos()
         concatena = f'ListarProdutos'
         self.server.send(concatena.encode())
         lista_produtos = self.server.recv(2048)
         lista_produtos = lista_produtos.decode()
-        # print("Lista de produtos",lista_produtos)
+
 
         lista_produtos = eval(lista_produtos)
-        # lista_produtos = list(lista_produtos)
-        # lista_produtos = map(lambda x: tuple(x),lista_produtos)
-        # lista_produtos = list(lista_produtos)
-        
-        # print("Lista de produtos",lista_produtos[0][0])
-        # print(lista_produtos[0])
 
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))
         self.tela_produto.tableWidget_3.setColumnCount(4)
@@ -365,6 +441,8 @@ class Main(QMainWindow, Ui_Main):
         for i in range (0, len(lista_produtos)):
             for j in range(0, 4):
                 self.tela_produto.tableWidget_3.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_produtos[i][j])))
+
+
 
     def voltarTelaInicial(self):
         self.QtStack.setCurrentIndex(0)

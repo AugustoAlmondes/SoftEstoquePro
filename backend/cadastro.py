@@ -3,9 +3,13 @@ import mysql.connector as mysql
 
 class Cadastro:
 
+
+
     def __init__(self):
         self.mydb = self.conectar()
         self.mycursor = self.mydb.cursor()
+
+
 
     def remover_produto(self,produto_remover):
         mydb = self.conectar()
@@ -24,6 +28,8 @@ class Cadastro:
         print('executou')
 
         return True  
+
+
 
     def cadastra_ususario(self,cpf,nome,endereco,nascimento,senha,usuario):
         print("entrou no cadastrar_usuario")
@@ -47,6 +53,7 @@ class Cadastro:
             return False
 
 
+
     def busca(self,dado,tabela,parametro_busca):
         mydb = self.conectar()
         mycursor = self.mydb.cursor()
@@ -67,6 +74,7 @@ class Cadastro:
             return False
 
 
+
     def buscar_usuario(self,cpf,senha):
         
         if not(self.busca(cpf,'usuarios',"cpf")):
@@ -85,7 +93,8 @@ class Cadastro:
         else:
             return False
 
-    
+
+
     def conectar(self):
         conectar = mysql.connect(
         host="localhost",
@@ -95,7 +104,9 @@ class Cadastro:
         )
 
         return conectar
-    
+
+
+
     def procurar_dado_especifico(self,coluna,tabela,parametro_busca,dado):
         
         result = None
@@ -118,6 +129,8 @@ class Cadastro:
         else:
             return None
 
+
+
     def buscar_todos_dados(self,banco,parametro_busca,codigo):
         print("entrou na busca")
         result = None
@@ -134,6 +147,24 @@ class Cadastro:
         return result
 
 
+
+    def ListarUsuario(self,usuario):
+        print("____Entrou____")
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+        print(usuario)
+
+        sql = f'SELECT id,nome,endereco,cpf,nascimento,usuario FROM usuarios where usuario = \'{usuario}\''
+
+        mycursor.execute(sql)
+        lista_usuario = mycursor.fetchall()
+
+        mydb.close()
+        print("retornou")
+        return lista_usuario
+
+
+
     def ListarProdutos(self):
         mydb = self.conectar()
         mycursor = mydb.cursor()
@@ -143,7 +174,9 @@ class Cadastro:
         
         mydb.close()
         return lista_produtos
-    
+
+
+
     def cadastra_produto(self, produto, preco, fornecedor, data_compra):
         
         print("Entrou no cadastro_produto")
