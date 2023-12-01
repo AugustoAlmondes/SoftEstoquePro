@@ -16,6 +16,7 @@ class ClienteThread(threading.Thread):
         try:
             while True:
                 solicit = self.clientSock.recv(2048).decode().split("*")
+                print("-------FUNÇÂO-------",solicit)
                 # Buscando o método da requisição no banco
                 if solicit:
                     metodo = solicit.pop(0)

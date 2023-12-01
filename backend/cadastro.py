@@ -76,7 +76,7 @@ class Cadastro:
             mycursor = mydb.cursor()
             mycursor.execute(sql)
             result = mycursor.fetchall()
-            print(result)
+            # print(result)
             
             if len(result) > 0:
                 return True
@@ -112,45 +112,28 @@ class Cadastro:
         # mydb.commit()
         mycursor.close()
         mydb.close()
-        print('exibindo result:',result)
+        # print('exibindo result:',result)
         if result:
             return(result[0][0])
         else:
             return None
-    
-    # def verificar_banco_dados(self,usuario):
-    #     banco_dados = ''
-        
-    #     if usuario == 'Administrador':
-    #         print('é administrador')
-    #         # sql = "INSERT INTO administrador (nome, endereco, cpf, nascimento, senha, usuario) VALUES (%s, %s, %s,%s, %s, %s)"
-    #         # val = (pessoa.nome, pessoa.endereco, pessoa.cpf, pessoa.nascimento, pessoa.senha, pessoa.usuario)
-    #         # val = ("Augsuto", "rua liz", "2020202", "121212", "joaoo43434", "Administrador")
-    #         banco_dados = 'administrador'
 
-    #     elif usuario == 'Entregador':
-    #         print('é entregador')
-    #         # sql = "INSERT INTO entregador (nome, endereco, cpf, nascimento, senha, usuario) VALUES (%s, %s, %s,%s, %s, %s)"
-    #         # val = (pessoa.nome, pessoa.endereco, pessoa.cpf, pessoa.nascimento, pessoa.senha, pessoa.usuario)
-    #         # val = ("Augsuto", "rua liz", "2020202", "121212", "joaoo43434", "Administrador")
-    #         banco_dados = 'entregador'
+    def buscar_todos_dados(self,banco,parametro_busca,codigo):
+        print("entrou na busca")
+        result = None
+        mydb = self.conectar()
+        mycursor = self.mydb.cursor()
 
-    #     elif usuario == 'Funcionario':
-    #         print('é funcionario')
-    #         # sql = "INSERT INTO cliente (nome, endereco, cpf, nascimento, senha, usuario) VALUES (%s, %s, %s,%s, %s, %s)"
-    #         # val = (pessoa.nome, pessoa.endereco, pessoa.cpf, pessoa.nascimento, pessoa.senha, pessoa.usuario)
-    #         # val = ("Augsuto", "rua liz", "2020202", "121212", "joaoo43434", "Administrador")
-    #         banco_dados = 'funcionario'
+        sql = f'SELECT * from {banco} where {parametro_busca} = {codigo};'
 
-    #     elif usuario == 'Fornecedor':
-    #         print('é fornecedor')
-    #         # sql = "INSERT INTO fornecedor (nome, endereco, cpf, nascimento, senha, usuario) VALUES (%s, %s, %s,%s, %s, %s)"
-    #         # val = (pessoa.nome, pessoa.endereco, pessoa.cpf, pessoa.nascimento, pessoa.senha, pessoa.usuario)
-    #         # val = ("Augsuto", "rua liz", "2020202", "121212", "joaoo43434", "Administrador")
-    #         banco_dados = 'fornecedor'
-                
-    #     return banco_dados
-    
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+
+        mydb.close()
+        print("RETORNOU OS DADOS")
+        return result
+
+
     def ListarProdutos(self):
         mydb = self.conectar()
         mycursor = mydb.cursor()
@@ -158,7 +141,7 @@ class Cadastro:
         mycursor.execute("SELECT * FROM produtos")
         lista_produtos = mycursor.fetchall()
         
-        mydb.close
+        mydb.close()
         return lista_produtos
     
     def cadastra_produto(self, produto, preco, fornecedor, data_compra):

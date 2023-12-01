@@ -11,6 +11,8 @@ from frontend.tela_bem_vindo import * #ADMINISTRADOR
 from frontend.tela_entregador import * #ENTREGADOR
 from frontend.tela_funcionario import * #FUNCIONARIO
 from frontend.tela_fornecedores import * #FONECEDOR 
+from frontend.tela_usuario import * #USUARIO
+
 from server_cliente import *
 from server_servidor import *
 
@@ -34,6 +36,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.stack5 = QtWidgets.QMainWindow()
         self.stack6 = QtWidgets.QMainWindow()
         self.stack7 = QtWidgets.QMainWindow()
+        self.stack8 = QtWidgets.QMainWindow()
 
         self.tela_inicial = Tela_Inicial()
         self.tela_inicial.setupUi(self.stack2)
@@ -58,6 +61,9 @@ class Ui_Main(QtWidgets.QWidget):
         
         self.tela_produto = Tela_produto()
         self.tela_produto.setupUi(self.stack7)
+        
+        self.tela_usuario = Tela_usuario()
+        self.tela_usuario.setupUi(self.stack8)
 
         self.QtStack.addWidget(self.stack0)
         self.QtStack.addWidget(self.stack1)
@@ -67,6 +73,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.QtStack.addWidget(self.stack5)
         self.QtStack.addWidget(self.stack6)
         self.QtStack.addWidget(self.stack7)
+        self.QtStack.addWidget(self.stack8)
 
 
 class Main(QMainWindow, Ui_Main):
@@ -83,6 +90,7 @@ class Main(QMainWindow, Ui_Main):
 
         self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaCadastro) #botao cadastrar tela administrador
         self.tela_bem_vindo.pushButton_7.clicked.connect(self.abrirTelaProduto)
+        self.tela_bem_vindo.pushButton_3.clicked.connect(self.abrirTelaUsuario)
 
         # funções dos botões da tela principal
         self.tela_inicial.pushButton_3.clicked.connect(self.sair) # funções dos botões da tela principal
@@ -108,12 +116,19 @@ class Main(QMainWindow, Ui_Main):
         self.tela_produto.pushButton_4.clicked.connect(self.TelaProdutoFrameRemover)
         self.tela_produto.pushButton_5.clicked.connect(self.TelaProdutoFrameBuscar)
         self.tela_produto.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
+        self.tela_produto.pushButton_7.clicked.connect(self.BuscarProduto)
         self.tela_produto.pushButton_8.clicked.connect(self.botaoRemoverProduto)
+
+        #TELA USUARIO
+        self.tela_usuario.pushButton_2.clicked.connect(self.TelaUsuarioListar)
+        self.tela_usuario.pushButton_3.clicked.connect(self.TelaUsuarioTipos)
+        self.tela_usuario.pushButton_4.clicked.connect(self.TelaUsuarioRemover)
+        self.tela_usuario.pushButton_5.clicked.connect(self.TelaUsuarioBuscar)
+        self.tela_usuario.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
 
     def botaoRemoverProduto(self):
         produto_remove = self.tela_produto.lineEdit_6.text()
-
-
+        
         if not(produto_remove == ''):
 
             concatena = f'busca*{produto_remove}*produtos*id'
@@ -216,6 +231,7 @@ class Main(QMainWindow, Ui_Main):
 
     def botaoLogin(self):
         usuario = None
+        
         cpf = self.tela_login.lineEdit.text()
         senha = self.tela_login.lineEdit_2.text()
         concatena = f'procurar_dado_especifico*usuario*usuarios*cpf*{cpf}'
@@ -266,6 +282,9 @@ class Main(QMainWindow, Ui_Main):
         
     def abrirTelaProduto(self):
         self.QtStack.setCurrentIndex(7)
+        
+    def abrirTelaUsuario(self):
+        self.QtStack.setCurrentIndex(8)
 
     def abrirTelaLogin(self): 
         self.QtStack.setCurrentIndex(2)
@@ -281,6 +300,48 @@ class Main(QMainWindow, Ui_Main):
         
     def TelaProdutoFrameRemover(self):
         self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_4)
+
+    def TelaUsuarioListar(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_2)
+        
+    def TelaUsuarioRemover(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_4)
+        
+    def TelaUsuarioBuscar(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_3)
+        
+    def TelaUsuarioTipos(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
+
+    def BuscarProduto(self):
+
+        produto_busca = self.tela_produto.lineEdit.text()
+        if not(produto_busca == ''):
+
+            concatena = f'buscar_todos_dados*produtos*id*{produto_busca}'
+            self.server.send(concatena.encode())
+            lista_produtos = self.server.recv(2048)
+            lista_produtos = lista_produtos.decode()
+
+            lista_produtos = eval(lista_produtos)
+            
+            if(lista_produtos):
+                print("----resultado----",lista_produtos)
+                
+                # lista_produtos = eval(lista_produtos)
+
+                self.tela_produto.tableWidget_2.setRowCount(1)
+                self.tela_produto.tableWidget_2.setColumnCount(4)
+
+                for i in range(0,4):
+                    self.tela_produto.tableWidget_2.setItem(0,i,QtWidgets.QTableWidgetItem(str(lista_produtos[0][i])))
+                    self.tela_produto.lineEdit.setText('')
+            else:
+                QMessageBox.information(None,'POOII', 'Valor não encontrado!')
+                self.tela_produto.lineEdit.setText('')
+                
+        else:
+            QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
     
     def ListarProdutos(self):
         # lista_produtos = self.cad.ListarProdutos()
@@ -288,14 +349,14 @@ class Main(QMainWindow, Ui_Main):
         self.server.send(concatena.encode())
         lista_produtos = self.server.recv(2048)
         lista_produtos = lista_produtos.decode()
-        print("Lista de produtos",lista_produtos)
+        # print("Lista de produtos",lista_produtos)
 
         lista_produtos = eval(lista_produtos)
         # lista_produtos = list(lista_produtos)
         # lista_produtos = map(lambda x: tuple(x),lista_produtos)
         # lista_produtos = list(lista_produtos)
         
-        print("Lista de produtos",lista_produtos[0][0])
+        # print("Lista de produtos",lista_produtos[0][0])
         # print(lista_produtos[0])
 
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))
