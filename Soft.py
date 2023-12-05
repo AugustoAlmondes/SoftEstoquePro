@@ -1,5 +1,5 @@
 import sys
-# import mysql.connector as mysql
+import mysql.connector as mysql
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
@@ -81,7 +81,7 @@ class Main(QMainWindow, Ui_Main):
         super(Main, self).__init__(None)
         self.setupUi(self)
 
-        self.server = server_cliente('192.168.18.107',4050)
+        self.server = server_cliente('10.180.41.229',4050)
         # self.log = Login()
         # self.cad = Cadastro()
         # self.prod = Produto()
@@ -420,7 +420,7 @@ class Main(QMainWindow, Ui_Main):
             else:
                 QMessageBox.information(None,'POOII', 'Valor não encontrado!')
                 self.tela_produto.lineEdit.setText('')
-                
+
         else:
             QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
 
@@ -431,17 +431,19 @@ class Main(QMainWindow, Ui_Main):
         self.server.send(concatena.encode())
         lista_produtos = self.server.recv(2048)
         lista_produtos = lista_produtos.decode()
+        
+        lista_produtos = lista_produtos.replace('Decimal','').replace('datetime.date','')
 
+        print(lista_produtos)
 
         lista_produtos = eval(lista_produtos)
 
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))
-        self.tela_produto.tableWidget_3.setColumnCount(4)
+        self.tela_produto.tableWidget_3.setColumnCount(7)
 
         for i in range (0, len(lista_produtos)):
-            for j in range(0, 4):
+            for j in range(0, 7):
                 self.tela_produto.tableWidget_3.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_produtos[i][j])))
-
 
 
     def voltarTelaInicial(self):

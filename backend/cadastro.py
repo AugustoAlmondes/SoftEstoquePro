@@ -169,7 +169,7 @@ class Cadastro:
         mydb = self.conectar()
         mycursor = mydb.cursor()
         
-        mycursor.execute("SELECT * FROM produtos")
+        mycursor.execute("SELECT * FROM estoque")
         lista_produtos = mycursor.fetchall()
         
         mydb.close()
