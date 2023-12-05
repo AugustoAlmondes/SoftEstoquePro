@@ -1,6 +1,5 @@
 # from pessoa import Pessoa
 import mysql.connector as mysql
-
 class Cadastro:
 
 
@@ -11,46 +10,15 @@ class Cadastro:
 
 
 
-    def remover_produto(self,produto_remover):
-        mydb = self.conectar()
-        mycursor = mydb.cursor()
+    def conectar(self):
+        conectar = mysql.connect(
+        host="localhost",
+        user="root",
+        password="play2233",
+        database="POO2"
+        )
 
-        sql = f'DELETE FROM produtos WHERE id = {produto_remover};'
-        print(sql)
-        mycursor.execute(sql)       
-        print('executou')        
-        # nome, endereco = result[0][2], result[0][3]
-        mydb.commit()
-        print('executou')        
-        mycursor.close()
-        print('executou')        
-        mydb.close()
-        print('executou')
-
-        return True  
-
-
-
-    def cadastra_ususario(self,cpf,nome,endereco,nascimento,senha,usuario):
-        print("entrou no cadastrar_usuario")
-        if (self.busca(cpf,'usuarios','cpf')):
-            print('entrou')
-            mydb = self.conectar()
-            mycursor = mydb.cursor()
-
-            # banco_dados = self.verificar_banco_dados(usuario)
-
-            sql = f'INSERT INTO usuarios (nome, endereco, cpf, nascimento, senha, usuario) VALUES ("{nome}", "{endereco}","{cpf}", "{nascimento}", "{senha}", "{usuario}")'
-
-            mycursor.execute(sql)
-
-            mydb.commit()
-            mycursor.close()
-            mydb.close()
-            return True
-        else:
-            print("retornou falso")
-            return False
+        return conectar
 
 
 
@@ -72,38 +40,6 @@ class Cadastro:
         else:
             print('Existe na tabela')
             return False
-
-
-
-    def buscar_usuario(self,cpf,senha):
-        
-        if not(self.busca(cpf,'usuarios',"cpf")):
-            print('achou')
-            sql = f'SELECT * from usuarios where cpf = "{cpf}" and senha = "{senha}";'
-            mydb = self.conectar()
-            mycursor = mydb.cursor()
-            mycursor.execute(sql)
-            result = mycursor.fetchall()
-            # print(result)
-            
-            if len(result) > 0:
-                return True
-            else:
-                return False
-        else:
-            return False
-
-
-
-    def conectar(self):
-        conectar = mysql.connect(
-        host="localhost",
-        user="root",
-        password="play2233",
-        database="POO2"
-        )
-
-        return conectar
 
 
 
@@ -131,6 +67,54 @@ class Cadastro:
 
 
 
+# ------------------------------------------------------------
+# ------------------------USUARIO-----------------------------
+
+
+
+    def buscar_usuario(self,cpf,senha):
+        
+        if not(self.busca(cpf,'usuarios',"cpf")):
+            print('achou')
+            sql = f'SELECT * from usuarios where cpf = "{cpf}" and senha = "{senha}";'
+            mydb = self.conectar()
+            mycursor = mydb.cursor()
+            mycursor.execute(sql)
+            result = mycursor.fetchall()
+            # print(result)
+            
+            if len(result) > 0:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+
+
+    def cadastra_ususario(self,cpf,nome,endereco,nascimento,senha,usuario):
+        print("entrou no cadastrar_usuario")
+        if (self.busca(cpf,'usuarios','cpf')):
+            print('entrou')
+            mydb = self.conectar()
+            mycursor = mydb.cursor()
+
+            # banco_dados = self.verificar_banco_dados(usuario)
+
+            sql = f'INSERT INTO usuarios (nome, endereco, cpf, nascimento, senha, usuario) VALUES ("{nome}", "{endereco}","{cpf}", "{nascimento}", "{senha}", "{usuario}")'
+
+            mycursor.execute(sql)
+
+            mydb.commit()
+            mycursor.close()
+            mydb.close()
+            return True
+        else:
+            print("retornou falso")
+            return False
+
+
+
     def buscar_todos_dados(self,banco,parametro_busca,codigo):
         print("entrou na busca")
         result = None
@@ -149,7 +133,7 @@ class Cadastro:
 
 
     def ListarUsuario(self,usuario):
-        print("____Entrou____")
+        # print("____Entrou____")
         mydb = self.conectar()
         mycursor = mydb.cursor()
         print(usuario)
@@ -165,6 +149,31 @@ class Cadastro:
 
 
 
+    def RemoverUsuario(self,usuario,id):
+        try:
+            
+            mydb = self.conectar()
+            mycursor = mydb.cursor()
+
+            sql = f'DELETE FROM usuarios WHERE usuario = "{usuario}" and id = "{id}";'
+            print(sql)
+            mycursor.execute(sql)
+            # nome, endereco = result[0][2], result[0][3]
+            mydb.commit()
+            mycursor.close()
+            mydb.close()
+            
+            return True
+        except:
+            return False
+
+
+
+# ------------------------------------------------------------
+# ------------------------PRODUTO-----------------------------
+
+
+
     def ListarProdutos(self):
         mydb = self.conectar()
         mycursor = mydb.cursor()
@@ -177,21 +186,22 @@ class Cadastro:
 
 
 
-    def cadastra_produto(self, produto, preco, fornecedor, data_compra):
+    def cadastra_produto(self, produto, quantidade,data_entrada, preco_compra,preco_venda, fornecedor):
         
         print("Entrou no cadastro_produto")
         
-        if (self.busca(produto,'produtos','produto')):
+        if (self.busca(produto,'Estoque','produto')):
             print('entrou')
             mydb = self.conectar()
             mycursor = mydb.cursor()
-            
+
             # banco_dados = self.verificar_banco_dados(usuario)
-            
-            sql = f'insert into produtos (produto, preco, fornecedor, dataCompra) values ("{produto}","{preco}" , "{fornecedor}", "{data_compra}")'
+
+            sql = f'INSERT INTO Estoque (produto, quantidade, data_entrada, preco_compra, preco_venda, fornecedor) values ("{produto}","{quantidade}" ,"{data_entrada}", "{preco_compra}","{preco_venda}", "{fornecedor}")'
+            print(sql)
             # sql = f'insert into produtos (produto, preco, fornecedor, dataCompra) values ("arroz",17.00,"carvalho","17/03");'
             mycursor.execute(sql)
-        
+
             mydb.commit()
             mycursor.close()
             mydb.close()
@@ -199,3 +209,19 @@ class Cadastro:
         
         else:
             return False
+
+
+
+    def remover_produto(self,produto_remover):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+
+        sql = f'DELETE FROM Estoque WHERE id = {produto_remover};'
+        print(sql)
+        mycursor.execute(sql)       
+        # nome, endereco = result[0][2], result[0][3]
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+
+        return True

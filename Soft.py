@@ -1,5 +1,6 @@
 import sys
 import mysql.connector as mysql
+from datetime import date
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 
@@ -129,19 +130,61 @@ class Main(QMainWindow, Ui_Main):
         self.tela_usuario.pushButton_28.clicked.connect(self.botaoExibirFuncionario)
         self.tela_usuario.pushButton_29.clicked.connect(self.botaoExibirFornecedor)
         self.tela_usuario.pushButton_30.clicked.connect(self.botaoExibirEntregador)
+        self.tela_usuario.pushButton_8.clicked.connect(self.botaoRemoverUsuario)
+
+
+
+    def abrirTelaCadastro(self):
+        self.QtStack.setCurrentIndex(1)
+        
+    def abrirTelaProduto(self):
+        self.QtStack.setCurrentIndex(7)
+        
+    def abrirTelaUsuario(self):
+        self.QtStack.setCurrentIndex(8)
+
+    def abrirTelaLogin(self): 
+        self.QtStack.setCurrentIndex(2)
+
+    def TelaProdutoFrameAdicionar(self):
+        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page)
+        
+    def TelaProdutoFrameListar(self):
+        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_2)
+        
+    def TelaProdutoFrameBuscar(self):
+        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_3)
+        
+    def TelaProdutoFrameRemover(self):
+        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_4)
+
+    def TelaUsuarioListar(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_2)
+        
+    def TelaUsuarioRemover(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_4)
+        
+    def TelaUsuarioBuscar(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_3)
+        
+    def TelaUsuarioTipos(self):
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
+
+
 
     def botaoRemoverProduto(self):
         produto_remove = self.tela_produto.lineEdit_6.text()
         
         if not(produto_remove == ''):
 
-            concatena = f'busca*{produto_remove}*produtos*id'
+            concatena = f'busca*{produto_remove}*Estoque*id'
             self.server.send(concatena.encode())
             result = self.server.recv(2048)
             result = result.decode()
 
-            print(result)
-            if(result):
+            print("RESULTADO DA REMOÇÃO",result)
+            
+            if(result == "False"):
 
                 concatena = f'remover_produto*{produto_remove}'
                 self.server.send(concatena.encode())
@@ -159,15 +202,21 @@ class Main(QMainWindow, Ui_Main):
             QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
         self.tela_produto.lineEdit_6.setText('')
 
+
+
     def botaoCadastrarProduto(self):
         produto = self.tela_produto.lineEdit_2.text()
-        preco = self.tela_produto.lineEdit_5.text()
-        fornecedor = self.tela_produto.lineEdit_4.text()
-        data_compra = self.tela_produto.lineEdit_3.text()
+        quantidade = self.tela_produto.lineEdit_5.text()
+        preco = self.tela_produto.lineEdit_4.text()
+        fornecedor = self.tela_produto.lineEdit_3.text()
+        
+        if not(produto == '' or preco == '' or fornecedor == '' or quantidade== ''):
 
-        if not(produto == '' or preco == '' or fornecedor == '' or data_compra== ''):
-            print("contaceta")
-            concatena = f'cadastra_produto*{produto}*{preco}*{fornecedor}*{data_compra}'
+            data = date.today()            
+            preco_venda = float(preco) + (float(preco) * 0.45)
+            
+            # print("----DATA",data)
+            concatena = f'cadastra_produto*{produto}*{quantidade}*{data}*{preco}*{preco_venda}*{fornecedor}'
             
             self.server.send(concatena.encode())
             resposta = self.server.recv(2048)
@@ -189,6 +238,8 @@ class Main(QMainWindow, Ui_Main):
         self.tela_produto.lineEdit_3.setText('')
         self.tela_produto.lineEdit_4.setText('')
         self.tela_produto.lineEdit_5.setText('')
+
+
 
     def botaoCadastra(self):
         usuario = None
@@ -224,7 +275,7 @@ class Main(QMainWindow, Ui_Main):
         self.limpar_campos_cad()
         usuario = None
 
-        
+
 
     def limpar_campos_cad(self):
             self.tela_cadastro.lineEdit.setText('')
@@ -232,6 +283,8 @@ class Main(QMainWindow, Ui_Main):
             self.tela_cadastro.lineEdit_3.setText('')
             self.tela_cadastro.lineEdit_4.setText('')
             self.tela_cadastro.lineEdit_6.setText('')
+
+
 
     def botaoLogin(self):
         usuario = None
@@ -279,43 +332,6 @@ class Main(QMainWindow, Ui_Main):
             self.tela_login.lineEdit.setText('')
             self.tela_login.lineEdit_2.setText('')
         usuario = None
-
-
-    def abrirTelaCadastro(self):
-        self.QtStack.setCurrentIndex(1)
-        
-    def abrirTelaProduto(self):
-        self.QtStack.setCurrentIndex(7)
-        
-    def abrirTelaUsuario(self):
-        self.QtStack.setCurrentIndex(8)
-
-    def abrirTelaLogin(self): 
-        self.QtStack.setCurrentIndex(2)
-
-    def TelaProdutoFrameAdicionar(self):
-        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page)
-        
-    def TelaProdutoFrameListar(self):
-        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_2)
-        
-    def TelaProdutoFrameBuscar(self):
-        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_3)
-        
-    def TelaProdutoFrameRemover(self):
-        self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page_4)
-
-    def TelaUsuarioListar(self):
-        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_2)
-        
-    def TelaUsuarioRemover(self):
-        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_4)
-        
-    def TelaUsuarioBuscar(self):
-        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_3)
-        
-    def TelaUsuarioTipos(self):
-        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
 
 
 
@@ -376,6 +392,59 @@ class Main(QMainWindow, Ui_Main):
 
 
 
+    def botaoRemoverUsuario(self):
+        tipo_usuario = self.tela_usuario.lineEdit_6.text()
+        id_usuario = self.tela_usuario.lineEdit_7.text()
+        
+        if not(tipo_usuario == '' and id_usuario == ''):
+            
+            concatena = f'busca*{tipo_usuario}*usuarios*usuario'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            print("Verificar usuario:", result)
+            
+            if(result == 'False'):
+                
+                concatena = f'busca*{id_usuario}*usuarios*id'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                print("Verificar id:", result)
+                
+                if(result == 'False'):
+                    
+                    concatena = f'RemoverUsuario*{tipo_usuario}*{id_usuario}'
+                    self.server.send(concatena.encode())
+                    result = self.server.recv(2048)
+                    result = result.decode()
+                    print("Verificar remoção:", result)
+                    
+                    if(result == 'True'):
+                        mensage = f'Remoção do usuário realizada com sucesso!'
+                        QMessageBox.information(None,'POOII',mensage)
+                        self.tela_usuario.lineEdit_7.setText('')
+                        self.tela_usuario.lineEdit_6.setText('') 
+                    else:
+                        mensage = f'Algo deu errado!'
+                        QMessageBox.information(None,'POOII',mensage)
+                        self.tela_usuario.lineEdit_7.setText('')
+                        self.tela_usuario.lineEdit_6.setText('') 
+                else:
+                    mensage = f'ID {id_usuario} não encontrado'
+                    QMessageBox.information(None,'POOII',mensage)
+                    self.tela_usuario.lineEdit_7.setText('')
+                    self.tela_usuario.lineEdit_6.setText('') 
+            else:
+                mensage = f'Usuário {tipo_usuario} não encontrado'
+                QMessageBox.information(None,'POOII',mensage)
+                self.tela_usuario.lineEdit_7.setText('')
+                self.tela_usuario.lineEdit_6.setText('') 
+        else:
+            QMessageBox.information(None,'POOII','Todos os campos devem estar preenchido')
+
+
+
     def botaoExibirEntregador(self):
 
         concatena = f'ListarUsuario*Entregador'
@@ -399,11 +468,12 @@ class Main(QMainWindow, Ui_Main):
         produto_busca = self.tela_produto.lineEdit.text()
         if not(produto_busca == ''):
 
-            concatena = f'buscar_todos_dados*produtos*id*{produto_busca}'
+            concatena = f'buscar_todos_dados*Estoque*id*{produto_busca}'
             self.server.send(concatena.encode())
             lista_produtos = self.server.recv(2048)
             lista_produtos = lista_produtos.decode()
 
+            lista_produtos = lista_produtos.replace('Decimal','').replace('datetime.date','')
             lista_produtos = eval(lista_produtos)
             
             if(lista_produtos):
@@ -412,9 +482,9 @@ class Main(QMainWindow, Ui_Main):
                 # lista_produtos = eval(lista_produtos)
 
                 self.tela_produto.tableWidget_2.setRowCount(1)
-                self.tela_produto.tableWidget_2.setColumnCount(4)
+                self.tela_produto.tableWidget_2.setColumnCount(7)
 
-                for i in range(0,4):
+                for i in range(0,7):
                     self.tela_produto.tableWidget_2.setItem(0,i,QtWidgets.QTableWidgetItem(str(lista_produtos[0][i])))
                     self.tela_produto.lineEdit.setText('')
             else:
@@ -433,9 +503,6 @@ class Main(QMainWindow, Ui_Main):
         lista_produtos = lista_produtos.decode()
         
         lista_produtos = lista_produtos.replace('Decimal','').replace('datetime.date','')
-
-        print(lista_produtos)
-
         lista_produtos = eval(lista_produtos)
 
         self.tela_produto.tableWidget_3.setRowCount(len(lista_produtos))

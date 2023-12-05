@@ -472,7 +472,7 @@ class Tela_produto(object):
         self.PAGINAS.addWidget(self.page_3)
 
         self.retranslateUi(tela_usuario)
-        self.PAGINAS.setCurrentIndex(0)
+        self.PAGINAS.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(tela_usuario)
 
     def retranslateUi(self, tela_usuario):
@@ -520,7 +520,7 @@ class Tela_produto(object):
         item = self.tableWidget_2.horizontalHeaderItem(3)
         item.setText(_translate("tela_usuario", "Data Compra"))
         item = self.tableWidget_2.horizontalHeaderItem(4)
-        item.setText(_translate("tela_usuario", "New Column"))
+        item.setText(_translate("tela_usuario", "Preço Compra"))
         item = self.tableWidget_2.horizontalHeaderItem(5)
         item.setText(_translate("tela_usuario", "Preço Venda"))
         item = self.tableWidget_2.horizontalHeaderItem(6)
