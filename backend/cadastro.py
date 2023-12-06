@@ -155,7 +155,7 @@ class Cadastro:
             mydb = self.conectar()
             mycursor = mydb.cursor()
 
-            sql = f'DELETE FROM usuarios WHERE usuario = "{usuario}" and id = "{id}";'
+            sql = f'DELETE FROM usuarios WHERE usuario = "{usuario}" and nome = "{id}";'
             print(sql)
             mycursor.execute(sql)
             # nome, endereco = result[0][2], result[0][3]
@@ -164,6 +164,25 @@ class Cadastro:
             mydb.close()
             
             return True
+        except:
+            return False
+
+
+    def DadosUsuario(self,usuario,nome):
+        try:
+            print("entrou na busca")
+            result = None
+            mydb = self.conectar()
+            mycursor = self.mydb.cursor()
+
+            sql = f'SELECT id, nome, endereco, cpf, nascimento, usuario from usuarios where usuario = "{usuario}" and nome = "{nome}";'
+
+            mycursor.execute(sql)
+            result = mycursor.fetchall()
+
+            mydb.close()
+            print("RETORNOU OS DADOS")
+            return result
         except:
             return False
 
@@ -224,4 +243,25 @@ class Cadastro:
         mycursor.close()
         mydb.close()
 
+        return True
+
+
+
+# ------------------------------------------------------------
+# ------------------------HISTÓRICO---------------------------
+
+
+
+    def AdicionarHistorico(self,mensagem, data):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+        
+        sql = f'INSERT INTO Historico (DescricaoOperacao,DataOperacao) VALUES ("{mensagem}","{data}")'
+        print(sql)
+        mycursor.execute(sql)       
+        # nome, endereco = result[0][2], result[0][3]
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+        
         return True

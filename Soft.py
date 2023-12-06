@@ -89,7 +89,7 @@ class Main(QMainWindow, Ui_Main):
         
         self.opcao_selecionada = None
 
-        self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaCadastro) #botao cadastrar tela administrador
+        # self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaCadastro)
         self.tela_bem_vindo.pushButton_7.clicked.connect(self.abrirTelaProduto)
         self.tela_bem_vindo.pushButton_3.clicked.connect(self.abrirTelaUsuario)
 
@@ -99,7 +99,7 @@ class Main(QMainWindow, Ui_Main):
         # self.tela_inicial.pushButton_2.clicked.connect(self.abrirTelaLogin)
 
         self.tela_cadastro.pushButton.clicked.connect(self.botaoCadastra)
-        self.tela_cadastro.pushButton_2.clicked.connect(self.abrirTelaBemVindo)
+        self.tela_cadastro.pushButton_2.clicked.connect(self.abrirTelaUsuario)
 
         self.tela_login.pushButton.clicked.connect(self.botaoLogin)
         # self.tela_login.pushButton_2.clicked.connect(self.abrirTelaCadastro)
@@ -121,11 +121,12 @@ class Main(QMainWindow, Ui_Main):
         self.tela_produto.pushButton_8.clicked.connect(self.botaoRemoverProduto)
 
         #TELA USUARIO
-        self.tela_usuario.pushButton_2.clicked.connect(self.TelaUsuarioListar)
+        self.tela_usuario.pushButton_2.clicked.connect(self.abrirTelaCadastro)
         self.tela_usuario.pushButton_3.clicked.connect(self.TelaUsuarioTipos)
         self.tela_usuario.pushButton_4.clicked.connect(self.TelaUsuarioRemover)
         self.tela_usuario.pushButton_5.clicked.connect(self.TelaUsuarioBuscar)
         self.tela_usuario.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
+        self.tela_usuario.pushButton_7.clicked.connect(self.botaoBuscarUsuario)
         self.tela_usuario.pushButton_27.clicked.connect(self.botaoExibirAdministradores)
         self.tela_usuario.pushButton_28.clicked.connect(self.botaoExibirFuncionario)
         self.tela_usuario.pushButton_29.clicked.connect(self.botaoExibirFornecedor)
@@ -193,6 +194,15 @@ class Main(QMainWindow, Ui_Main):
 
                 # self.cad.remover_produto(produto_remove)
                 if (result):                    
+                    
+                    data = date.today()
+                    mensage_hist = f'Remoção do Produto {produto_remove} do estoque'
+                    
+                    concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                    self.server.send(concatena.encode())
+                    result = self.server.recv(2048)
+                    result = result.decode()
+                    
                     QMessageBox.information(None,'POOII', 'Produto removido com Sucesso!')
                 # self.tela_produto.lineEdit_2.setText('')
             else:
@@ -229,6 +239,15 @@ class Main(QMainWindow, Ui_Main):
             # if(self.cad.cadastra_produto(produto, preco, fornecedor, data_compra)):
             
             if resposta == True:
+                
+                data = date.today()
+                mensage_hist = f'Cadastro do produto {produto} na quantia de {quantidade} do fornecedor {fornecedor}'
+                
+                concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                
                 QMessageBox.information(None,'POOII', 'Produto cadastrado com Sucesso!')
             else:
                 QMessageBox.information(None,'POOII', 'Produto ja cadastrado')
@@ -262,6 +281,15 @@ class Main(QMainWindow, Ui_Main):
                 print("----recebeu----")
 
                 if (resposta):
+                    
+                    data = date.today()
+                    mensage_hist = f'Cadastro do Usuário {nome} do tipo {usuario}'
+                    
+                    concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                    self.server.send(concatena.encode())
+                    result = self.server.recv(2048)
+                    result = result.decode()
+                    
                     QMessageBox.information(None,'POOII', 'Cadastro realizado com sucesso!')
                 else:
                     QMessageBox.information(None,'POOII', 'Erro ao realizar o Cadastro')
@@ -392,59 +420,6 @@ class Main(QMainWindow, Ui_Main):
 
 
 
-    def botaoRemoverUsuario(self):
-        tipo_usuario = self.tela_usuario.lineEdit_6.text()
-        id_usuario = self.tela_usuario.lineEdit_7.text()
-        
-        if not(tipo_usuario == '' and id_usuario == ''):
-            
-            concatena = f'busca*{tipo_usuario}*usuarios*usuario'
-            self.server.send(concatena.encode())
-            result = self.server.recv(2048)
-            result = result.decode()
-            print("Verificar usuario:", result)
-            
-            if(result == 'False'):
-                
-                concatena = f'busca*{id_usuario}*usuarios*id'
-                self.server.send(concatena.encode())
-                result = self.server.recv(2048)
-                result = result.decode()
-                print("Verificar id:", result)
-                
-                if(result == 'False'):
-                    
-                    concatena = f'RemoverUsuario*{tipo_usuario}*{id_usuario}'
-                    self.server.send(concatena.encode())
-                    result = self.server.recv(2048)
-                    result = result.decode()
-                    print("Verificar remoção:", result)
-                    
-                    if(result == 'True'):
-                        mensage = f'Remoção do usuário realizada com sucesso!'
-                        QMessageBox.information(None,'POOII',mensage)
-                        self.tela_usuario.lineEdit_7.setText('')
-                        self.tela_usuario.lineEdit_6.setText('') 
-                    else:
-                        mensage = f'Algo deu errado!'
-                        QMessageBox.information(None,'POOII',mensage)
-                        self.tela_usuario.lineEdit_7.setText('')
-                        self.tela_usuario.lineEdit_6.setText('') 
-                else:
-                    mensage = f'ID {id_usuario} não encontrado'
-                    QMessageBox.information(None,'POOII',mensage)
-                    self.tela_usuario.lineEdit_7.setText('')
-                    self.tela_usuario.lineEdit_6.setText('') 
-            else:
-                mensage = f'Usuário {tipo_usuario} não encontrado'
-                QMessageBox.information(None,'POOII',mensage)
-                self.tela_usuario.lineEdit_7.setText('')
-                self.tela_usuario.lineEdit_6.setText('') 
-        else:
-            QMessageBox.information(None,'POOII','Todos os campos devem estar preenchido')
-
-
-
     def botaoExibirEntregador(self):
 
         concatena = f'ListarUsuario*Entregador'
@@ -461,6 +436,123 @@ class Main(QMainWindow, Ui_Main):
         for i in range (0, len(lista_adm)):
             for j in range(0, 6):
                 self.tela_usuario.tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_adm[i][j])))
+
+
+
+    def botaoRemoverUsuario(self):
+        tipo_usuario = self.tela_usuario.lineEdit_6.text()
+        nome_usuario = self.tela_usuario.lineEdit_7.text()
+        
+        if not(tipo_usuario == '' and nome_usuario == ''):
+            
+            concatena = f'busca*{tipo_usuario}*usuarios*usuario'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            print("Verificar usuario:", result)
+            
+            if(result == 'False'):
+                
+                concatena = f'busca*{nome_usuario}*usuarios*nome'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                print("Verificar nome:", result)
+                
+                if(result == 'False'):
+                    
+                    concatena = f'RemoverUsuario*{tipo_usuario}*{nome_usuario}'
+                    self.server.send(concatena.encode())
+                    result = self.server.recv(2048)
+                    result = result.decode()
+                    print("Verificar remoção:", result)
+                    
+                    if(result == 'True'):
+                        
+                        data = date.today()
+                        mensage_hist = f'Remoção do Usuário {nome_usuario} do tipo {tipo_usuario}'
+                        
+                        concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                        self.server.send(concatena.encode())
+                        result = self.server.recv(2048)
+                        result = result.decode()
+                        
+                        mensage = f'Remoção do usuário realizada com sucesso!'
+                        QMessageBox.information(None,'POOII',mensage)
+                        self.tela_usuario.lineEdit_7.setText('')
+                        self.tela_usuario.lineEdit_6.setText('') 
+                    else:
+                        mensage = f'Algo deu errado!'
+                        QMessageBox.information(None,'POOII',mensage)
+                        self.tela_usuario.lineEdit_7.setText('')
+                        self.tela_usuario.lineEdit_6.setText('') 
+                else:
+                    mensage = f'nome {nome_usuario} não encontrado'
+                    QMessageBox.information(None,'POOII',mensage)
+                    self.tela_usuario.lineEdit_7.setText('')
+                    self.tela_usuario.lineEdit_6.setText('') 
+            else:
+                mensage = f'Usuário {tipo_usuario} não encontrado'
+                QMessageBox.information(None,'POOII',mensage)
+                self.tela_usuario.lineEdit_7.setText('')
+                self.tela_usuario.lineEdit_6.setText('') 
+        else:
+            QMessageBox.information(None,'POOII','Todos os campos devem estar preenchido')
+
+
+
+    def botaoBuscarUsuario(self):
+        
+        tipo_usuario = self.tela_usuario.lineEdit_8.text()
+        nome_usuario = self.tela_usuario.lineEdit_9.text()
+        
+        if not(tipo_usuario == '' and nome_usuario == ''):
+            
+            concatena = f'busca*{tipo_usuario}*usuarios*usuario'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            print("Verificar usuario:", result)
+            
+            if(result == 'False'):
+                
+                concatena = f'busca*{nome_usuario}*usuarios*nome'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                print("Verificar id:", result)
+                
+                if(result ==  'False'):
+                    
+                    concatena = f'DadosUsuario*{tipo_usuario}*{nome_usuario}'
+                    self.server.send(concatena.encode())
+                    lista_adm = self.server.recv(2048)
+                    lista_adm = lista_adm.decode()
+                    
+                    lista_adm = eval(lista_adm)
+                    print(lista_adm)
+                    
+                    self.tela_usuario.tableWidget_2.setRowCount(len(lista_adm))
+                    self.tela_usuario.tableWidget_2.setColumnCount(6)
+
+                    for i in range (0, len(lista_adm)):
+                        for j in range(0, 6):
+                            self.tela_usuario.tableWidget_2.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_adm[i][j])))
+                            
+                    self.tela_usuario.lineEdit_8.setText('')
+                    self.tela_usuario.lineEdit_9.setText('')
+                else:
+                    mensage = f'Nome {nome_usuario} não encontrado'
+                    QMessageBox.information(None,'POOII',mensage)
+                    self.tela_usuario.lineEdit_8.setText('')
+                    self.tela_usuario.lineEdit_9.setText('')
+            else:
+                mensage = f'Usuário {tipo_usuario} não encontrado'
+                QMessageBox.information(None,'POOII',mensage)
+                self.tela_usuario.lineEdit_8.setText('')
+                self.tela_usuario.lineEdit_9.setText('') 
+        else:
+            QMessageBox.information(None,'POOII','Todos os campos devem estar preenchido')
 
 
 
