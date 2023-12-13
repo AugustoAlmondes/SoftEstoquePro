@@ -95,6 +95,7 @@ class Main(QMainWindow, Ui_Main):
         self.setupUi(self)
 
         self.server = server_cliente('192.168.18.107',4050)
+        self.dados_produtos = []
         # self.log = Login()
         # self.cad = Cadastro()
         # self.prod = Produto()
@@ -156,6 +157,8 @@ class Main(QMainWindow, Ui_Main):
         self.tela_vendas.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
         self.tela_vendas.pushButton_2.clicked.connect(self.TelaVendasFrameRealizarVenda)
         self.tela_vendas.pushButton.clicked.connect(self.BotaoRealizarVenda)
+        self.tela_vendas.pushButton_4.clicked.connect(self.AbrirFrameVendaDireta)
+        self.tela_vendas.pushButton_5.clicked.connect(self.AbrirTelaVendaEntrega)
 
     def abrirTelaBemVindo(self):
         self.QtStack.setCurrentIndex(3)
@@ -208,38 +211,55 @@ class Main(QMainWindow, Ui_Main):
     def TelaUsuarioTipos(self):
         self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
 
+    def AbrirFrameVendaDireta(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_4)
+
+    def AbrirTelaVendaEntrega(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_3)
+
+    # def botaoCadastrarEntrega
+
 
 
     def BotaoRealizarVenda(self):
-        codigo_produto = self.tela_vendas.lineEdit.text()
-        quantidade = self.tela_vendas.lineEdit_2.text()
-        cliente = self.tela_vendas.lineEdit_3.text()
-        funcionario = self.tela_vendas.lineEdit_4.text()
+        self.dados_produtos.append(self.tela_vendas.lineEdit.text()) #CÓDIGO
+        self.dados_produtos.append(self.tela_vendas.lineEdit_2.text()) #QUANTIDADE
+        self.dados_produtos.append(self.tela_vendas.lineEdit_3.text()) #CLIENTE
+        self.dados_produtos.append(self.tela_vendas.lineEdit_4.text()) #FUNCIONARIO
         
-        if not(codigo_produto == '' and quantidade == '' and cliente == '' and funcionario == ''):
+        if not(self.dados_produtos[0] == '' and self.dados_produtos[1] == '' and self.dados_produtos[2] == '' and self.dados_produtos[3] == ''):
 
-            concatena = f'busca*{codigo_produto}*Estoque*id'
+            concatena = f'busca*{self.dados_produtos[0]}*Estoque*id'
             self.server.send(concatena.encode())
             result = self.server.recv(2048)
             result = result.decode()
 
             if(result == 'False'):
-                concatena = f'buscar_todos_dados*estoque*id*{codigo_produto}'
+                concatena = f'buscar_todos_dados*estoque*id*{self.dados_produtos[0]}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+
+                result = result.replace('Decimal','').replace('datetime.date','')
+                result = eval(result)
+
+                preco_unidade = result[0][5]
+                total = float(preco_unidade) * int(self.dados_produtos[1])
+                data = date.today()
+                produto = result[0][1]
+                
+                concatena = f'AdicionarVenda*{self.dados_produtos[0]}*{self.dados_produtos[1]}*{preco_unidade}*{total}*{self.dados_produtos[2]}*{self.dados_produtos[3]}*{data}'
                 self.server.send(concatena.encode())
                 result = self.server.recv(2048)
                 result = result.decode()
                 
-                result = result.replace('Decimal','').replace('datetime.date','')
-                result = eval(result)
-                
-                preco_unidade = result[0][4]
-                total = float(preco_unidade) * int(quantidade)
-                data = date.today()
-                
+                self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
             else:
                 QMessageBox.information(None,'POOII', 'Erro ao bsucar produto.\nID inexistente')
         else:
             QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
+
+
 
     def botaoRemoverProduto(self):
         produto_remove = self.tela_produto.lineEdit_6.text()

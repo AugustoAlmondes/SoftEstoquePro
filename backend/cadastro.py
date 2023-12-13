@@ -277,3 +277,22 @@ class Cadastro:
         
         mydb.close()
         return historico
+
+
+
+# ------------------------------------------------------------
+# --------------------------VENDAS----------------------------
+
+    def AdicionarVenda(self,produto, quantidade, preco_unitario, total, cliente, responsavel_venda, data_venda):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+
+        sql = f'INSERT INTO Vendas (produto, quantidade, preco_unitario, total, cliente, responsavel_venda, data_venda) VALUES ("{produto}", "{quantidade}", "{preco_unitario}", "{total}", "{cliente}", "{responsavel_venda}", "{data_venda}")'
+        print("Entrou aqui")
+        mycursor.execute(sql)       
+
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+
+        return True
