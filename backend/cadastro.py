@@ -265,3 +265,15 @@ class Cadastro:
         mydb.close()
         
         return True
+
+
+
+    def ExibirHistorico(self):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+        
+        mycursor.execute("SELECT * FROM historico")
+        historico = mycursor.fetchall()
+        
+        mydb.close()
+        return historico

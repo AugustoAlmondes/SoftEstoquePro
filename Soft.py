@@ -13,6 +13,7 @@ from frontend.tela_entregador import * #ENTREGADOR
 from frontend.tela_funcionario import * #FUNCIONARIO
 from frontend.tela_fornecedores import * #FONECEDOR 
 from frontend.tela_usuario import * #USUARIO
+from frontend.tela_historico import * #HISTORICO
 
 from server_cliente import *
 from server_servidor import *
@@ -38,6 +39,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.stack6 = QtWidgets.QMainWindow()
         self.stack7 = QtWidgets.QMainWindow()
         self.stack8 = QtWidgets.QMainWindow()
+        self.stack9 = QtWidgets.QMainWindow()
 
         self.tela_inicial = Tela_Inicial()
         self.tela_inicial.setupUi(self.stack2)
@@ -65,6 +67,9 @@ class Ui_Main(QtWidgets.QWidget):
         
         self.tela_usuario = Tela_usuario()
         self.tela_usuario.setupUi(self.stack8)
+        
+        self.tela_historico = Tela_historico()
+        self.tela_historico.setupUi(self.stack9)
 
         self.QtStack.addWidget(self.stack0)
         self.QtStack.addWidget(self.stack1)
@@ -75,6 +80,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.QtStack.addWidget(self.stack6)
         self.QtStack.addWidget(self.stack7)
         self.QtStack.addWidget(self.stack8)
+        self.QtStack.addWidget(self.stack9)
 
 
 class Main(QMainWindow, Ui_Main):
@@ -82,7 +88,7 @@ class Main(QMainWindow, Ui_Main):
         super(Main, self).__init__(None)
         self.setupUi(self)
 
-        self.server = server_cliente('10.180.41.229',4050)
+        self.server = server_cliente('192.168.18.107',4050)
         # self.log = Login()
         # self.cad = Cadastro()
         # self.prod = Produto()
@@ -92,6 +98,7 @@ class Main(QMainWindow, Ui_Main):
         # self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaCadastro)
         self.tela_bem_vindo.pushButton_7.clicked.connect(self.abrirTelaProduto)
         self.tela_bem_vindo.pushButton_3.clicked.connect(self.abrirTelaUsuario)
+        self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaHistorico)
 
         # funções dos botões da tela principal
         self.tela_inicial.pushButton_3.clicked.connect(self.sair) # funções dos botões da tela principal
@@ -133,19 +140,24 @@ class Main(QMainWindow, Ui_Main):
         self.tela_usuario.pushButton_30.clicked.connect(self.botaoExibirEntregador)
         self.tela_usuario.pushButton_8.clicked.connect(self.botaoRemoverUsuario)
 
-
+        #TELA HISTORICO
+        self.tela_bem_vindo.pushButton_8.clicked.connect(self.botaoExibirHistorico)
+        self.tela_historico.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
 
     def abrirTelaCadastro(self):
         self.QtStack.setCurrentIndex(1)
-        
+
     def abrirTelaProduto(self):
         self.QtStack.setCurrentIndex(7)
-        
+
     def abrirTelaUsuario(self):
         self.QtStack.setCurrentIndex(8)
 
     def abrirTelaLogin(self): 
         self.QtStack.setCurrentIndex(2)
+
+    def abrirTelaHistorico(self):
+        self.QtStack.setCurrentIndex(9)
 
     def TelaProdutoFrameAdicionar(self):
         self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page)
@@ -194,15 +206,15 @@ class Main(QMainWindow, Ui_Main):
 
                 # self.cad.remover_produto(produto_remove)
                 if (result):                    
-                    
+
                     data = date.today()
                     mensage_hist = f'Remoção do Produto {produto_remove} do estoque'
-                    
+
                     concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
                     self.server.send(concatena.encode())
                     result = self.server.recv(2048)
                     result = result.decode()
-                    
+
                     QMessageBox.information(None,'POOII', 'Produto removido com Sucesso!')
                 # self.tela_produto.lineEdit_2.setText('')
             else:
@@ -223,7 +235,7 @@ class Main(QMainWindow, Ui_Main):
         if not(produto == '' or preco == '' or fornecedor == '' or quantidade== ''):
 
             data = date.today()            
-            preco_venda = float(preco) + (float(preco) * 0.45)
+            preco_venda = (float(preco)/int(quantidade)) + ((float(preco)/int(quantidade)) * 0.45)
             
             # print("----DATA",data)
             concatena = f'cadastra_produto*{produto}*{quantidade}*{data}*{preco}*{preco_venda}*{fornecedor}'
@@ -639,6 +651,25 @@ class Main(QMainWindow, Ui_Main):
         print(usuario)
 
         return usuario
+
+
+
+    def botaoExibirHistorico(self):
+        concatena = f'ExibirHistorico'
+        self.server.send(concatena.encode())
+        dados_hist = self.server.recv(2048)
+        dados_hist = dados_hist.decode()
+        
+        dados_hist = dados_hist.replace('datetime.date','')
+        dados_hist = eval(dados_hist)
+
+        self.tela_historico.tableWidget.setRowCount(len(dados_hist))
+        self.tela_historico.tableWidget.setColumnCount(3)
+
+        for i in range (0, len(dados_hist)):
+            for j in range(0,3):
+                self.tela_historico.tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(dados_hist[i][j])))
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

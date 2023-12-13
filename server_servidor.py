@@ -60,6 +60,6 @@ class Servidor():
 
     
 if __name__ == '__main__':
-    print(f'Ip do servidor: 10.180.41.229\n\n')
-    c = Servidor('10.180.41.229')
+    print(f'Ip do servidor: 192.168.18.107\n\n')
+    c = Servidor('192.168.18.107')
     c.start()
