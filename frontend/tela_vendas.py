@@ -11,7 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_tela_usuario(object):
+class Tela_vendas(object):
     def setupUi(self, tela_usuario):
         tela_usuario.setObjectName("tela_usuario")
         tela_usuario.resize(1000, 600)
@@ -293,6 +293,17 @@ class Ui_tela_usuario(object):
         self.PAGINAS = QtWidgets.QStackedWidget(tela_usuario)
         self.PAGINAS.setGeometry(QtCore.QRect(60, 180, 881, 361))
         self.PAGINAS.setObjectName("PAGINAS")
+        self.page_11 = QtWidgets.QWidget()
+        self.page_11.setObjectName("page_11")
+        self.label_29 = QtWidgets.QLabel(self.page_11)
+        self.label_29.setGeometry(QtCore.QRect(370, 120, 181, 101))
+        font = QtGui.QFont()
+        font.setPointSize(26)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_29.setFont(font)
+        self.label_29.setObjectName("label_29")
+        self.PAGINAS.addWidget(self.page_11)
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
         self.label_4 = QtWidgets.QLabel(self.page)
@@ -976,7 +987,7 @@ class Ui_tela_usuario(object):
         self.PAGINAS.addWidget(self.page_8)
 
         self.retranslateUi(tela_usuario)
-        self.PAGINAS.setCurrentIndex(3)
+        self.PAGINAS.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(tela_usuario)
 
     def retranslateUi(self, tela_usuario):
@@ -987,6 +998,7 @@ class Ui_tela_usuario(object):
         self.pushButton_6.setText(_translate("tela_usuario", "Voltar"))
         self.pushButton_3.setText(_translate("tela_usuario", "HISTORICO DE  VENDAS"))
         self.pushButton_14.setText(_translate("tela_usuario", "ENTREGAS"))
+        self.label_29.setText(_translate("tela_usuario", "VENDAS"))
         self.label_4.setText(_translate("tela_usuario", "REALIZAR VENDA"))
         self.label_5.setText(_translate("tela_usuario", "Código do produto"))
         self.label_6.setText(_translate("tela_usuario", "Quantidade"))
@@ -1102,7 +1114,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     tela_usuario = QtWidgets.QDialog()
-    ui = Ui_tela_usuario()
+    ui = Tela_vendas()
     ui.setupUi(tela_usuario)
     tela_usuario.show()
     sys.exit(app.exec_())

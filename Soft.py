@@ -14,6 +14,7 @@ from frontend.tela_funcionario import * #FUNCIONARIO
 from frontend.tela_fornecedores import * #FONECEDOR 
 from frontend.tela_usuario import * #USUARIO
 from frontend.tela_historico import * #HISTORICO
+from frontend.tela_vendas import * #VENDAS
 
 from server_cliente import *
 from server_servidor import *
@@ -40,6 +41,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.stack7 = QtWidgets.QMainWindow()
         self.stack8 = QtWidgets.QMainWindow()
         self.stack9 = QtWidgets.QMainWindow()
+        self.stack10 = QtWidgets.QMainWindow()
 
         self.tela_inicial = Tela_Inicial()
         self.tela_inicial.setupUi(self.stack2)
@@ -70,6 +72,9 @@ class Ui_Main(QtWidgets.QWidget):
         
         self.tela_historico = Tela_historico()
         self.tela_historico.setupUi(self.stack9)
+        
+        self.tela_vendas = Tela_vendas()
+        self.tela_vendas.setupUi(self.stack10)
 
         self.QtStack.addWidget(self.stack0)
         self.QtStack.addWidget(self.stack1)
@@ -81,6 +86,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.QtStack.addWidget(self.stack7)
         self.QtStack.addWidget(self.stack8)
         self.QtStack.addWidget(self.stack9)
+        self.QtStack.addWidget(self.stack10)
 
 
 class Main(QMainWindow, Ui_Main):
@@ -99,6 +105,7 @@ class Main(QMainWindow, Ui_Main):
         self.tela_bem_vindo.pushButton_7.clicked.connect(self.abrirTelaProduto)
         self.tela_bem_vindo.pushButton_3.clicked.connect(self.abrirTelaUsuario)
         self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaHistorico)
+        self.tela_bem_vindo.pushButton_2.clicked.connect(self.abrirTelaVendas)
 
         # funções dos botões da tela principal
         self.tela_inicial.pushButton_3.clicked.connect(self.sair) # funções dos botões da tela principal
@@ -144,6 +151,15 @@ class Main(QMainWindow, Ui_Main):
         self.tela_bem_vindo.pushButton_8.clicked.connect(self.botaoExibirHistorico)
         self.tela_historico.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
 
+        #TELA VENDAS
+        self.tela_bem_vindo.pushButton_2.clicked.connect(self.TelaVendasFrameInicial)
+        self.tela_vendas.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
+        self.tela_vendas.pushButton_2.clicked.connect(self.TelaVendasFrameRealizarVenda)
+        self.tela_vendas.pushButton.clicked.connect(self.BotaoRealizarVenda)
+
+    def abrirTelaBemVindo(self):
+        self.QtStack.setCurrentIndex(3)
+
     def abrirTelaCadastro(self):
         self.QtStack.setCurrentIndex(1)
 
@@ -158,6 +174,15 @@ class Main(QMainWindow, Ui_Main):
 
     def abrirTelaHistorico(self):
         self.QtStack.setCurrentIndex(9)
+
+    def abrirTelaVendas(self):
+        self.QtStack.setCurrentIndex(10)
+
+    def TelaVendasFrameInicial(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_11)
+
+    def TelaVendasFrameRealizarVenda(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
 
     def TelaProdutoFrameAdicionar(self):
         self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page)
@@ -184,6 +209,37 @@ class Main(QMainWindow, Ui_Main):
         self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
 
 
+
+    def BotaoRealizarVenda(self):
+        codigo_produto = self.tela_vendas.lineEdit.text()
+        quantidade = self.tela_vendas.lineEdit_2.text()
+        cliente = self.tela_vendas.lineEdit_3.text()
+        funcionario = self.tela_vendas.lineEdit_4.text()
+        
+        if not(codigo_produto == '' and quantidade == '' and cliente == '' and funcionario == ''):
+
+            concatena = f'busca*{codigo_produto}*Estoque*id'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+
+            if(result == 'False'):
+                concatena = f'buscar_todos_dados*estoque*id*{codigo_produto}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                
+                result = result.replace('Decimal','').replace('datetime.date','')
+                result = eval(result)
+                
+                preco_unidade = result[0][4]
+                total = float(preco_unidade) * int(quantidade)
+                data = date.today()
+                
+            else:
+                QMessageBox.information(None,'POOII', 'Erro ao bsucar produto.\nID inexistente')
+        else:
+            QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
 
     def botaoRemoverProduto(self):
         produto_remove = self.tela_produto.lineEdit_6.text()
@@ -621,9 +677,6 @@ class Main(QMainWindow, Ui_Main):
         self.QtStack.setCurrentIndex(0)
         self.tela_login.lineEdit.setText('')
         self.tela_login.lineEdit_2.setText('')
-
-    def abrirTelaBemVindo(self):
-        self.QtStack.setCurrentIndex(3)
 
     def sair(self):
         sys.exit()
