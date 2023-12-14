@@ -94,7 +94,7 @@ class Main(QMainWindow, Ui_Main):
         super(Main, self).__init__(None)
         self.setupUi(self)
 
-        self.server = server_cliente('192.168.18.107',4050)
+        self.server = server_cliente('10.180.44.101',4050)
         self.dados_produtos = []
         # self.log = Login()
         # self.cad = Cadastro()
@@ -156,12 +156,15 @@ class Main(QMainWindow, Ui_Main):
         self.tela_bem_vindo.pushButton_2.clicked.connect(self.TelaVendasFrameInicial)
         self.tela_vendas.pushButton_6.clicked.connect(self.abrirTelaBemVindo)
         self.tela_vendas.pushButton_2.clicked.connect(self.TelaVendasFrameRealizarVenda)
-        self.tela_vendas.pushButton.clicked.connect(self.BotaoRealizarVenda)
-        self.tela_vendas.pushButton_4.clicked.connect(self.AbrirFrameVendaDireta)
+        self.tela_vendas.pushButton_4.clicked.connect(self.BotaoRealizarVenda)
+        self.tela_vendas.pushButton_4.clicked.connect(self.TelaVendasFrameInicial)
+        self.tela_vendas.pushButton.clicked.connect(self.AbrirFrameOpcaoVenda)  
         self.tela_vendas.pushButton_5.clicked.connect(self.AbrirTelaVendaEntrega)
+        # self.tela_vendas.pushButton_7.clicked.connect(self.MostrarDados)
 
     def abrirTelaBemVindo(self):
         self.QtStack.setCurrentIndex(3)
+        self.RemoverProdutoZeradoEstoque()
 
     def abrirTelaCadastro(self):
         self.QtStack.setCurrentIndex(1)
@@ -180,12 +183,6 @@ class Main(QMainWindow, Ui_Main):
 
     def abrirTelaVendas(self):
         self.QtStack.setCurrentIndex(10)
-
-    def TelaVendasFrameInicial(self):
-        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_11)
-
-    def TelaVendasFrameRealizarVenda(self):
-        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
 
     def TelaProdutoFrameAdicionar(self):
         self.tela_produto.PAGINAS.setCurrentWidget(self.tela_produto.page)
@@ -210,14 +207,18 @@ class Main(QMainWindow, Ui_Main):
         
     def TelaUsuarioTipos(self):
         self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
-
-    def AbrirFrameVendaDireta(self):
-        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_4)
+        
+    def AbrirFrameOpcaoVenda(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
 
     def AbrirTelaVendaEntrega(self):
         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_3)
 
-    # def botaoCadastrarEntrega
+    def TelaVendasFrameInicial(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_11)
+
+    def TelaVendasFrameRealizarVenda(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
 
 
 
@@ -243,21 +244,35 @@ class Main(QMainWindow, Ui_Main):
                 result = result.replace('Decimal','').replace('datetime.date','')
                 result = eval(result)
 
-                preco_unidade = result[0][5]
-                total = float(preco_unidade) * int(self.dados_produtos[1])
-                data = date.today()
-                produto = result[0][1]
-                
-                concatena = f'AdicionarVenda*{self.dados_produtos[0]}*{self.dados_produtos[1]}*{preco_unidade}*{total}*{self.dados_produtos[2]}*{self.dados_produtos[3]}*{data}'
-                self.server.send(concatena.encode())
-                result = self.server.recv(2048)
-                result = result.decode()
-                
-                self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
+                if(int(result[0][2]) >= int(self.dados_produtos[1])):
+                    preco_unidade = result[0][5]
+                    total = float(preco_unidade) * int(self.dados_produtos[1])
+                    data = date.today()
+                    produto = result[0][1]
+                    
+                    # print(self.dados_produtos)
+                    
+                    concatena = f'AdicionarVenda*{self.dados_produtos[0]}*{self.dados_produtos[1]}*{preco_unidade}*{total}*{self.dados_produtos[2]}*{self.dados_produtos[3]}*{data}'
+                    self.server.send(concatena.encode())
+                    result = self.server.recv(2048)
+                    result = result.decode()
+                    
+                    if(result == "True"):
+                        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
+                        self.tela_vendas.lineEdit.setText('')
+                        self.tela_vendas.lineEdit_2.setText('')
+                        self.tela_vendas.lineEdit_3.setText('')
+                        self.tela_vendas.lineEdit_4.setText('')
+                        self.dados_produtos.clear()
+                else:
+                    QMessageBox.information(None,'POOII', 'Não existe essa quantidade de produto no estoque')
+                    self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
             else:
                 QMessageBox.information(None,'POOII', 'Erro ao bsucar produto.\nID inexistente')
+                self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
         else:
             QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
+            self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
 
 
 
@@ -299,6 +314,14 @@ class Main(QMainWindow, Ui_Main):
         else:
             QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
         self.tela_produto.lineEdit_6.setText('')
+
+
+
+    def RemoverProdutoZeradoEstoque(self):
+        concatena = f'RemoverProdutoZerado'
+        self.server.send(concatena.encode())
+        result = self.server.recv(2048)
+        result = result.decode()
 
 
 

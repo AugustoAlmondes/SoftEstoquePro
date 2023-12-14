@@ -246,7 +246,30 @@ class Cadastro:
         return True
 
 
+    def RemoverProdutoZerado(self):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
 
+        sql = f'SET SQL_SAFE_UPDATES = 0;'
+        print(sql)
+        mycursor.execute(sql)       
+        # nome, endereco = result[0][2], result[0][3]
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+        
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+
+        sql = f'DELETE FROM Estoque WHERE quantidade = 0;'
+        print(sql)
+        mycursor.execute(sql)       
+        # nome, endereco = result[0][2], result[0][3]
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+        
+        return True
 # ------------------------------------------------------------
 # ------------------------HISTÓRICO---------------------------
 
@@ -283,6 +306,8 @@ class Cadastro:
 # ------------------------------------------------------------
 # --------------------------VENDAS----------------------------
 
+
+
     def AdicionarVenda(self,produto, quantidade, preco_unitario, total, cliente, responsavel_venda, data_venda):
         mydb = self.conectar()
         mycursor = mydb.cursor()
@@ -290,6 +315,19 @@ class Cadastro:
         sql = f'INSERT INTO Vendas (produto, quantidade, preco_unitario, total, cliente, responsavel_venda, data_venda) VALUES ("{produto}", "{quantidade}", "{preco_unitario}", "{total}", "{cliente}", "{responsavel_venda}", "{data_venda}")'
         print("Entrou aqui")
         mycursor.execute(sql)       
+
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+
+        # print(produto)
+        
+        sql = f'UPDATE Estoque SET quantidade = quantidade - {quantidade} WHERE id = {produto};'
+        print("Entrou aqui")
+        mycursor.execute(sql)
 
         mydb.commit()
         mycursor.close()
