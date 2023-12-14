@@ -160,7 +160,7 @@ class Main(QMainWindow, Ui_Main):
         self.tela_vendas.pushButton_4.clicked.connect(self.TelaVendasFrameInicial)
         self.tela_vendas.pushButton.clicked.connect(self.AbrirFrameOpcaoVenda)  
         self.tela_vendas.pushButton_5.clicked.connect(self.AbrirTelaVendaEntrega)
-        # self.tela_vendas.pushButton_7.clicked.connect(self.MostrarDados)
+        self.tela_vendas.pushButton_7.clicked.connect(self.MostrarDadosTelaVendas)
 
     def abrirTelaBemVindo(self):
         self.QtStack.setCurrentIndex(3)
@@ -222,6 +222,41 @@ class Main(QMainWindow, Ui_Main):
 
 
 
+    def MostrarDadosTelaVendas(self):
+        codigo = self.tela_vendas.lineEdit.text()
+        
+        if(codigo != ''):
+            
+            concatena = f'busca*{codigo}*Estoque*id'
+            
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            
+            if(result == 'False'):
+                concatena = f'buscar_todos_dados*Estoque*id*{codigo}'
+                
+                self.server.send(concatena.encode())
+                infor_prod = self.server.recv(2048)
+                infor_prod = infor_prod.decode()
+                
+                infor_prod = infor_prod.replace('Decimal','').replace('datetime.date','')
+                infor_prod = eval(infor_prod)
+
+                self.tela_vendas.tableWidget_2.setRowCount(len(infor_prod))
+                self.tela_vendas.tableWidget_2.setColumnCount(7)
+
+                for i in range (0, len(infor_prod)):
+                    for j in range(0, 7):
+                        self.tela_vendas.tableWidget_2.setItem(i,j,QtWidgets.QTableWidgetItem(str(infor_prod[i][j])))
+            else:
+                QMessageBox.information(None,'POOII', 'ID do produto nao encontrado')
+                self.tela_vendas.lineEdit.setText('')
+        else:
+            QMessageBox.information(None,'POOII', 'O campo do Código deve ser preenchido')
+
+
+
     def BotaoRealizarVenda(self):
         self.dados_produtos.append(self.tela_vendas.lineEdit.text()) #CÓDIGO
         self.dados_produtos.append(self.tela_vendas.lineEdit_2.text()) #QUANTIDADE
@@ -229,50 +264,88 @@ class Main(QMainWindow, Ui_Main):
         self.dados_produtos.append(self.tela_vendas.lineEdit_4.text()) #FUNCIONARIO
         
         if not(self.dados_produtos[0] == '' and self.dados_produtos[1] == '' and self.dados_produtos[2] == '' and self.dados_produtos[3] == ''):
-
-            concatena = f'busca*{self.dados_produtos[0]}*Estoque*id'
+            
+            concatena = f'DadosUsuario*Funcionario*{self.dados_produtos[3]}'
             self.server.send(concatena.encode())
-            result = self.server.recv(2048)
-            result = result.decode()
-
-            if(result == 'False'):
-                concatena = f'buscar_todos_dados*estoque*id*{self.dados_produtos[0]}'
+            verificacao_1 = self.server.recv(2048)
+            verificacao_1 = verificacao_1.decode()
+            
+            concatena = f'DadosUsuario*Administrador*{self.dados_produtos[3]}'
+            self.server.send(concatena.encode())
+            verificacao_2 = self.server.recv(2048)
+            verificacao_2 = verificacao_2.decode()
+            
+            verificacao_1 = eval(verificacao_1)
+            verificacao_2 = eval(verificacao_2)
+            
+            if(len(verificacao_1) > 0 or len(verificacao_2) > 0):
+                concatena = f'busca*{self.dados_produtos[0]}*Estoque*id'
                 self.server.send(concatena.encode())
                 result = self.server.recv(2048)
                 result = result.decode()
 
-                result = result.replace('Decimal','').replace('datetime.date','')
-                result = eval(result)
-
-                if(int(result[0][2]) >= int(self.dados_produtos[1])):
-                    preco_unidade = result[0][5]
-                    total = float(preco_unidade) * int(self.dados_produtos[1])
-                    data = date.today()
-                    produto = result[0][1]
-                    
-                    # print(self.dados_produtos)
-                    
-                    concatena = f'AdicionarVenda*{self.dados_produtos[0]}*{self.dados_produtos[1]}*{preco_unidade}*{total}*{self.dados_produtos[2]}*{self.dados_produtos[3]}*{data}'
+                if(result == 'False'):
+                    concatena = f'buscar_todos_dados*estoque*id*{self.dados_produtos[0]}'
                     self.server.send(concatena.encode())
                     result = self.server.recv(2048)
                     result = result.decode()
+
+                    result = result.replace('Decimal','').replace('datetime.date','')
+                    result = eval(result)
                     
-                    if(result == "True"):
+                    try:
+                        int(self.dados_produtos[1])
+                        if(int(result[0][2]) >= int(self.dados_produtos[1])):
+                            preco_unidade = result[0][5]
+                            total = float(preco_unidade) * int(self.dados_produtos[1])
+                            data = date.today()
+                            produto = result[0][1]
+                            
+                            # print(self.dados_produtos)
+                            
+                            concatena = f'AdicionarVenda*{self.dados_produtos[0]}*{self.dados_produtos[1]}*{preco_unidade}*{total}*{self.dados_produtos[2]}*{self.dados_produtos[3]}*{data}'
+                            self.server.send(concatena.encode())
+                            result = self.server.recv(2048)
+                            result = result.decode()
+
+                            mensage_hist = f'Venda de um/a {produto} realizada ao cliente {self.dados_produtos[2]} pelo funcionário {self.dados_produtos[3]}'                        
+                            concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                            self.server.send(concatena.encode())
+                            result = self.server.recv(2048)
+                            result = result.decode()
+
+                            if(result == "True"):
+                                QMessageBox.information(None,'POOII', 'Venda realizada com sucesso')
+                                self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
+                                self.limpar_campos_vendas()
+                        else:
+                            QMessageBox.information(None,'POOII', 'Não existe essa quantidade de produto no estoque')
+                            self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
+                            self.limpar_campos_vendas()
+                    except:
+                        QMessageBox.information(None,'POOII', 'A Quantidade deve ser apenas em números inteiros')
                         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
-                        self.tela_vendas.lineEdit.setText('')
-                        self.tela_vendas.lineEdit_2.setText('')
-                        self.tela_vendas.lineEdit_3.setText('')
-                        self.tela_vendas.lineEdit_4.setText('')
-                        self.dados_produtos.clear()
+                        self.limpar_campos_vendas()
                 else:
-                    QMessageBox.information(None,'POOII', 'Não existe essa quantidade de produto no estoque')
+                    QMessageBox.information(None,'POOII', 'Erro ao bsucar produto.\nID inexistente')
                     self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
+                    self.limpar_campos_vendas()
             else:
-                QMessageBox.information(None,'POOII', 'Erro ao bsucar produto.\nID inexistente')
+                QMessageBox.information(None,'POOII', 'Funcionario não encontrado')
                 self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
         else:
             QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
             self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
+            self.limpar_campos_vendas()
+
+
+
+    def limpar_campos_vendas(self):
+        self.tela_vendas.lineEdit.setText('')
+        self.tela_vendas.lineEdit_2.setText('')
+        self.tela_vendas.lineEdit_3.setText('')
+        self.tela_vendas.lineEdit_4.setText('')
+        self.dados_produtos.clear()
 
 
 

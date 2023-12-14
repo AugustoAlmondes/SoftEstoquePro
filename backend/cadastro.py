@@ -176,7 +176,7 @@ class Cadastro:
             mycursor = self.mydb.cursor()
 
             sql = f'SELECT id, nome, endereco, cpf, nascimento, usuario from usuarios where usuario = "{usuario}" and nome = "{nome}";'
-
+            print(sql)
             mycursor.execute(sql)
             result = mycursor.fetchall()
 
