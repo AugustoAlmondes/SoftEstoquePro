@@ -94,7 +94,7 @@ class Main(QMainWindow, Ui_Main):
         super(Main, self).__init__(None)
         self.setupUi(self)
 
-        self.server = server_cliente('10.180.44.101',4050)
+        self.server = server_cliente('192.168.18.107',4050)
         self.dados_produtos = []
         # self.log = Login()
         # self.cad = Cadastro()
@@ -206,10 +206,7 @@ class Main(QMainWindow, Ui_Main):
         self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page_3)
         
     def TelaUsuarioTipos(self):
-        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)
-        
-    def AbrirFrameOpcaoVenda(self):
-        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
+        self.tela_usuario.PAGINAS.setCurrentWidget(self.tela_usuario.page)    
 
     def AbrirTelaVendaEntrega(self):
         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_3)
@@ -220,6 +217,27 @@ class Main(QMainWindow, Ui_Main):
     def TelaVendasFrameRealizarVenda(self):
         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
 
+
+
+    def AbrirFrameOpcaoVenda(self):
+        
+        self.dados_produtos.append(self.tela_vendas.lineEdit.text()) #CÓDIGO
+        self.dados_produtos.append(self.tela_vendas.lineEdit_2.text()) #QUANTIDADE
+        self.dados_produtos.append(self.tela_vendas.lineEdit_3.text()) #CLIENTE
+        self.dados_produtos.append(self.tela_vendas.lineEdit_4.text()) #FUNCIONARIO
+        
+        concatena = f'buscar_todos_dados*estoque*id*{self.dados_produtos[0]}'
+        self.server.send(concatena.encode())
+        result = self.server.recv(2048)
+        result = result.decode()
+
+        result = result.replace('Decimal','').replace('datetime.date','')
+        result = eval(result)
+        preco_unidade = result[0][5]
+        total = float(preco_unidade) * int(self.dados_produtos[1])
+        
+        self.tela_vendas.lineEdit_8.setText(str(total))
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
 
 
     def MostrarDadosTelaVendas(self):
@@ -300,7 +318,6 @@ class Main(QMainWindow, Ui_Main):
                             total = float(preco_unidade) * int(self.dados_produtos[1])
                             data = date.today()
                             produto = result[0][1]
-                            
                             # print(self.dados_produtos)
                             
                             concatena = f'AdicionarVenda*{self.dados_produtos[0]}*{self.dados_produtos[1]}*{preco_unidade}*{total}*{self.dados_produtos[2]}*{self.dados_produtos[3]}*{data}'
@@ -319,21 +336,26 @@ class Main(QMainWindow, Ui_Main):
                                 self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
                                 self.limpar_campos_vendas()
                         else:
+                            self.tela_vendas.lineEdit_8.setText('None')
                             QMessageBox.information(None,'POOII', 'Não existe essa quantidade de produto no estoque')
                             self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
                             self.limpar_campos_vendas()
                     except:
+                        self.tela_vendas.lineEdit_8.setText('None')
                         QMessageBox.information(None,'POOII', 'A Quantidade deve ser apenas em números inteiros')
                         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
                         self.limpar_campos_vendas()
                 else:
+                    self.tela_vendas.lineEdit_8.setText('None')
                     QMessageBox.information(None,'POOII', 'Erro ao bsucar produto.\nID inexistente')
                     self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
                     self.limpar_campos_vendas()
             else:
+                self.tela_vendas.lineEdit_8.setText('None')
                 QMessageBox.information(None,'POOII', 'Funcionario não encontrado')
                 self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
         else:
+            self.tela_vendas.lineEdit_8.setText('None')
             QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
             self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
             self.limpar_campos_vendas()
@@ -346,6 +368,8 @@ class Main(QMainWindow, Ui_Main):
         self.tela_vendas.lineEdit_3.setText('')
         self.tela_vendas.lineEdit_4.setText('')
         self.dados_produtos.clear()
+        self.tela_vendas.lineEdit_8.setText('')
+        
 
 
 
@@ -422,7 +446,7 @@ class Main(QMainWindow, Ui_Main):
             # info_prod = Produto(produto,preco,fornecedor,data_compra)
             # if(self.cad.cadastra_produto(produto, preco, fornecedor, data_compra)):
             
-            if resposta == True:
+            if resposta == 'True':
                 
                 data = date.today()
                 mensage_hist = f'Cadastro do produto {produto} na quantia de {quantidade} do fornecedor {fornecedor}'
@@ -797,25 +821,29 @@ class Main(QMainWindow, Ui_Main):
     def sair(self):
         sys.exit()
 
-    def onClicked(self, radioButton):
-        if radioButton.isChecked():
-            self.opcao_selecionada = radioButton.text()
+    def onClicked(self, checkBox):
+        if checkBox.isChecked():
+            self.opcao_selecionada = checkBox.text()
 
     def verificar_usuario(self):
         usuario = None
-        self.tela_cadastro.radioButton.toggled.connect(lambda: self.onClicked(self.radioButton))
-        self.tela_cadastro.radioButton_2.toggled.connect(lambda: self.onClicked(self.radioButton2))
-        self.tela_cadastro.radioButton_3.toggled.connect(lambda: self.onClicked(self.radioButton3))
-        self.tela_cadastro.radioButton_4.toggled.connect(lambda: self.onClicked(self.radioButton4))
+        # self.tela_cadastro.checkBox.toggled.connect(lambda: self.onClicked(self.checkBox))
+        # self.tela_cadastro.checkBox_2.toggled.connect(lambda: self.onClicked(self.checkBox2))
+        # self.tela_cadastro.checkBox_3.toggled.connect(lambda: self.onClicked(self.checkBox3))
+        # self.tela_cadastro.checkBox_4.toggled.connect(lambda: self.onClicked(self.checkBox4))
         
-        if self.tela_cadastro.radioButton.isChecked():
-            usuario = self.tela_cadastro.radioButton.text()
-        if self.tela_cadastro.radioButton_2.isChecked():
-            usuario = self.tela_cadastro.radioButton_2.text()
-        if self.tela_cadastro.radioButton_3.isChecked():
-            usuario = self.tela_cadastro.radioButton_3.text()
-        if self.tela_cadastro.radioButton_4.isChecked():
-            usuario = self.tela_cadastro.radioButton_4.text()
+        if self.tela_cadastro.checkBox.isChecked():
+            usuario = self.tela_cadastro.checkBox.text()
+            self.tela_cadastro.checkBox.setChecked(False)
+        if self.tela_cadastro.checkBox_2.isChecked():
+            usuario = self.tela_cadastro.checkBox_2.text()
+            self.tela_cadastro.checkBox_2.setChecked(False)
+        if self.tela_cadastro.checkBox_3.isChecked():
+            usuario = self.tela_cadastro.checkBox_3.text()
+            self.tela_cadastro.checkBox_3.setChecked(False)
+        if self.tela_cadastro.checkBox_4.isChecked():
+            usuario = self.tela_cadastro.checkBox_4.text()
+            self.tela_cadastro.checkBox_4.setChecked(False)
 
         print(usuario)
 
