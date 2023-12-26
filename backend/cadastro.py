@@ -1,5 +1,6 @@
 # from pessoa import Pessoa
 import mysql.connector as mysql
+import bcrypt
 class Cadastro:
 
 
@@ -76,7 +77,9 @@ class Cadastro:
         
         if not(self.busca(cpf,'usuarios',"cpf")):
             print('achou')
-            sql = f'SELECT * from usuarios where cpf = "{cpf}" and senha = "{senha}";'
+            senha_codificada = senha.encode('utf-8')  # Codificar a senha para bytes
+            hashed = bcrypt.hashpw(senha_codificada, bcrypt.gensalt())
+            sql = f'SELECT * from usuarios where cpf = "{cpf}" and senha = "{hashed}";'
             mydb = self.conectar()
             mycursor = mydb.cursor()
             mycursor.execute(sql)
@@ -95,13 +98,15 @@ class Cadastro:
     def cadastra_ususario(self,cpf,nome,endereco,nascimento,senha,usuario):
         print("entrou no cadastrar_usuario")
         if (self.busca(cpf,'usuarios','cpf')):
+            senha_codificada = senha.encode('utf-8')  # Codificar a senha para bytes
+            hashed = bcrypt.hashpw(senha_codificada, bcrypt.gensalt())
             print('entrou')
             mydb = self.conectar()
             mycursor = mydb.cursor()
 
             # banco_dados = self.verificar_banco_dados(usuario)
 
-            sql = f'INSERT INTO usuarios (nome, endereco, cpf, nascimento, senha, usuario) VALUES ("{nome}", "{endereco}","{cpf}", "{nascimento}", "{senha}", "{usuario}")'
+            sql = f'INSERT INTO usuarios (nome, endereco, cpf, nascimento, senha, usuario) VALUES ("{nome}", "{endereco}","{cpf}", "{nascimento}", "{hashed}", "{usuario}")'
 
             mycursor.execute(sql)
 

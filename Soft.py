@@ -296,6 +296,9 @@ class Main(QMainWindow, Ui_Main):
             verificacao_1 = eval(verificacao_1)
             verificacao_2 = eval(verificacao_2)
             
+            print(verificacao_1)
+            print(verificacao_2)
+            
             if(len(verificacao_1) > 0 or len(verificacao_2) > 0):
                 concatena = f'busca*{self.dados_produtos[0]}*Estoque*id'
                 self.server.send(concatena.encode())
@@ -335,30 +338,36 @@ class Main(QMainWindow, Ui_Main):
                                 QMessageBox.information(None,'POOII', 'Venda realizada com sucesso')
                                 self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
                                 self.limpar_campos_vendas()
+                                self.dados_produtos.clear()
                         else:
                             self.tela_vendas.lineEdit_8.setText('None')
                             QMessageBox.information(None,'POOII', 'Não existe essa quantidade de produto no estoque')
                             self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
                             self.limpar_campos_vendas()
+                            self.dados_produtos.clear()
                     except:
                         self.tela_vendas.lineEdit_8.setText('None')
                         QMessageBox.information(None,'POOII', 'A Quantidade deve ser apenas em números inteiros')
                         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
                         self.limpar_campos_vendas()
+                        self.dados_produtos.clear()
                 else:
                     self.tela_vendas.lineEdit_8.setText('None')
                     QMessageBox.information(None,'POOII', 'Erro ao bsucar produto.\nID inexistente')
                     self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
                     self.limpar_campos_vendas()
+                    self.dados_produtos.clear()
             else:
                 self.tela_vendas.lineEdit_8.setText('None')
                 QMessageBox.information(None,'POOII', 'Funcionario não encontrado')
                 self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
+                self.dados_produtos.clear()
         else:
             self.tela_vendas.lineEdit_8.setText('None')
             QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
             self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
             self.limpar_campos_vendas()
+            self.dados_produtos.clear()
 
 
 
@@ -367,7 +376,6 @@ class Main(QMainWindow, Ui_Main):
         self.tela_vendas.lineEdit_2.setText('')
         self.tela_vendas.lineEdit_3.setText('')
         self.tela_vendas.lineEdit_4.setText('')
-        self.dados_produtos.clear()
         self.tela_vendas.lineEdit_8.setText('')
         
 
