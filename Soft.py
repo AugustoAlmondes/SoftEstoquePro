@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 from frontend.tela_inicial import *
 from frontend.tela_cadastro import *
 from frontend.tela_produto import *
+from frontend.tela_estoque_funcionario import *
 from frontend.tela_login import *
 from frontend.tela_bem_vindo import * #ADMINISTRADOR
 from frontend.tela_entregador import * #ENTREGADOR
@@ -42,6 +43,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.stack8 = QtWidgets.QMainWindow()
         self.stack9 = QtWidgets.QMainWindow()
         self.stack10 = QtWidgets.QMainWindow()
+        self.stack11 = QtWidgets.QMainWindow()
 
         self.tela_inicial = Tela_Inicial()
         self.tela_inicial.setupUi(self.stack2)
@@ -75,6 +77,9 @@ class Ui_Main(QtWidgets.QWidget):
         
         self.tela_vendas = Tela_vendas()
         self.tela_vendas.setupUi(self.stack10)
+        
+        self.tela_estoque_funcionario = Tela_produto_funcionario()
+        self.tela_estoque_funcionario.setupUi(self.stack11)
 
         self.QtStack.addWidget(self.stack0)
         self.QtStack.addWidget(self.stack1)
@@ -87,6 +92,7 @@ class Ui_Main(QtWidgets.QWidget):
         self.QtStack.addWidget(self.stack8)
         self.QtStack.addWidget(self.stack9)
         self.QtStack.addWidget(self.stack10)
+        self.QtStack.addWidget(self.stack11)
 
 
 class Main(QMainWindow, Ui_Main):
@@ -96,12 +102,10 @@ class Main(QMainWindow, Ui_Main):
 
         self.server = server_cliente('192.168.18.107',4050)
         self.dados_produtos = []
-        # self.log = Login()
-        # self.cad = Cadastro()
-        # self.prod = Produto()
         
         self.opcao_selecionada = None
 
+        #ADMINISTRADOR
         # self.tela_bem_vindo.pushButton_8.clicked.connect(self.abrirTelaCadastro)
         self.tela_bem_vindo.pushButton_7.clicked.connect(self.abrirTelaProduto)
         self.tela_bem_vindo.pushButton_3.clicked.connect(self.abrirTelaUsuario)
@@ -135,6 +139,12 @@ class Main(QMainWindow, Ui_Main):
         self.tela_produto.pushButton_7.clicked.connect(self.BuscarProduto)
         self.tela_produto.pushButton_8.clicked.connect(self.botaoRemoverProduto)
 
+        self.tela_estoque_funcionario.pushButton_2.clicked.connect(self.TelaProdutoFrameListarFuncionario)
+        self.tela_estoque_funcionario.pushButton_2.clicked.connect(self.ListarProdutosFuncionario)
+        self.tela_estoque_funcionario.pushButton_6.clicked.connect(self.AbrirTelaFuncionario)
+        self.tela_estoque_funcionario.pushButton_5.clicked.connect(self.TelaProdutoFrameBuscarFuncionario)
+        self.tela_estoque_funcionario.pushButton_7.clicked.connect(self.BuscarProdutoFuncionario)
+
         #TELA USUARIO
         self.tela_usuario.pushButton_2.clicked.connect(self.abrirTelaCadastro)
         self.tela_usuario.pushButton_3.clicked.connect(self.TelaUsuarioTipos)
@@ -164,10 +174,27 @@ class Main(QMainWindow, Ui_Main):
         self.tela_vendas.pushButton_8.clicked.connect(self.CadastrarEntrega)
         self.tela_vendas.pushButton_9.clicked.connect(self.TelaVendasFrameRealizarVenda)
         self.tela_vendas.pushButton_10.clicked.connect(self.TelaVendasFrameTotal)
+        self.tela_vendas.pushButton_14.clicked.connect(self.AbrirFrameEntrega)
+        self.tela_vendas.pushButton_11.clicked.connect(self.AbrirFrameEntrega)
+        self.tela_vendas.pushButton_12.clicked.connect(self.AbrirFrameEntrega)
+        self.tela_vendas.pushButton_20.clicked.connect(self.AbrirFrameEntrega)
+        self.tela_vendas.pushButton_15.clicked.connect(self.AbrirFrameListarEntrega)
+        self.tela_vendas.pushButton_15.clicked.connect(self.botaoExibirEntregas)
+        self.tela_vendas.pushButton_16.clicked.connect(self.AbrirFrameFinalizarEntrega)
+        self.tela_vendas.pushButton_17.clicked.connect(self.AbrirFrameBuscarEntrega)
+        self.tela_vendas.pushButton_18.clicked.connect(self.botaobuscarEntregaFinalizar)
+        self.tela_vendas.pushButton_19.clicked.connect(self.botaoFinalizarEntrega)
+        self.tela_vendas.pushButton_21.clicked.connect(self.botaobuscarDadosEntrega)
+
+        #FUNCIONÁRIO
+        self.tela_funcionario.pushButton_9.clicked.connect(self.AbrirTelaEstoqueFuncionario)
 
     def abrirTelaBemVindo(self):
         self.QtStack.setCurrentIndex(3)
         self.RemoverProdutoZeradoEstoque()
+
+    def AbrirTelaFuncionario(self):
+        self.QtStack.setCurrentIndex(4)
 
     def abrirTelaCadastro(self):
         self.QtStack.setCurrentIndex(1)
@@ -222,6 +249,169 @@ class Main(QMainWindow, Ui_Main):
     
     def TelaVendasFrameTotal(self):
         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
+    
+    def AbrirFrameEntrega(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_7)
+    
+    def AbrirFrameBuscarEntrega(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_10)
+    
+    def AbrirFrameFinalizarEntrega(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_9)
+    
+    def AbrirFrameListarEntrega(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_8)
+
+    def TelaProdutoFrameListarFuncionario(self):
+        self.tela_estoque_funcionario.PAGINAS.setCurrentWidget(self.tela_estoque_funcionario.page_2)
+
+    def TelaProdutoFrameBuscarFuncionario(self):
+        self.tela_estoque_funcionario.PAGINAS.setCurrentWidget(self.tela_estoque_funcionario.page_3)
+
+    def AbrirTelaEstoqueFuncionario(self):
+        self.QtStack.setCurrentIndex(11)
+        self.tela_estoque_funcionario.PAGINAS.setCurrentWidget(self.tela_estoque_funcionario.page_5)
+
+    def botaoFinalizarEntrega(self):
+        codigo = self.tela_vendas.lineEdit_13.text()
+        
+        if(codigo != ''):
+            concatena = f'busca*{codigo}*Entrega*id'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            
+            if(result == 'False'):
+                concatena = f'FinalizarEntrega*{codigo}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                
+                if(result == 'True'):
+                    data = date.today()
+                    mensage_hist = f'Entrega de id {codigo} finalizada'
+                    concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                    self.server.send(concatena.encode())
+                    result = self.server.recv(2048)
+                    result = result.decode()
+                    self.tela_vendas.lineEdit_13.setText('')
+                    QMessageBox.information(None,'POOII', 'Entrega finalizada com sucesso')
+                else:
+                    self.tela_vendas.lineEdit_13.setText('')
+                    QMessageBox.information(None,'POOII', 'Algo deu errado')
+            else:
+                self.tela_vendas.lineEdit_13.setText('')
+                QMessageBox.information(None,'POOII', 'A entrga não foi encontrada')
+        else:
+            self.tela_vendas.lineEdit_13.setText('')
+            QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
+
+
+    def botaobuscarEntregaFinalizar(self):
+        codigo = self.tela_vendas.lineEdit_13.text()
+        
+        if(codigo != ''):
+            concatena = f'busca*{codigo}*Entrega*id'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            
+            if(result == 'False'):
+                
+                concatena = f'buscar_todos_dados*Entrega*id*{codigo}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                
+                result = result.replace('datetime.date','')
+                result = eval(result)
+                
+                self.tela_vendas.tableWidget_5.setRowCount(len(result))
+                self.tela_vendas.tableWidget_5.setColumnCount(7)
+
+                for i in range (0, len(result)):
+                    for j in range(0,7):
+                        self.tela_vendas.tableWidget_5.setItem(i,j,QtWidgets.QTableWidgetItem(str(result[i][j])))
+                self.tela_vendas.lineEdit_13.setText('')
+            else:
+                self.tela_vendas.lineEdit_13.setText('')
+                QMessageBox.information(None,'POOII', 'A entrega não foi encontrada')
+        else:
+            self.tela_vendas.lineEdit_13.setText('')            
+            QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
+
+
+
+    def botaobuscarDadosEntrega(self):
+        codigo = self.tela_vendas.lineEdit_14.text()
+        
+        if(codigo != ''):
+            concatena = f'busca*{codigo}*Entrega*id'
+            self.server.send(concatena.encode())
+            result = self.server.recv(2048)
+            result = result.decode()
+            
+            if(result == 'False'):
+                
+                concatena = f'buscar_todos_dados*Entrega*id*{codigo}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                
+                result = result.replace('datetime.date','')
+                result = eval(result)
+                
+                codigo_venda = result[0][1]
+                
+                self.tela_vendas.tableWidget_6.setRowCount(len(result))
+                self.tela_vendas.tableWidget_6.setColumnCount(7)
+
+                for i in range (0, len(result)):
+                    for j in range(0,7):
+                        self.tela_vendas.tableWidget_6.setItem(i,j,QtWidgets.QTableWidgetItem(str(result[i][j])))
+                self.tela_vendas.lineEdit_14.setText('')
+                
+                concatena = f'buscar_todos_dados*Vendas*id*{codigo_venda}'
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                
+                print(result)
+                
+                result = result.replace('datetime.date','').replace('Decimal','')
+                result = eval(result)
+                
+                self.tela_vendas.tableWidget_7.setRowCount(len(result))
+                self.tela_vendas.tableWidget_7.setColumnCount(8)
+
+                for i in range (0, len(result)):
+                    for j in range(0,8):
+                        self.tela_vendas.tableWidget_7.setItem(i,j,QtWidgets.QTableWidgetItem(str(result[i][j])))
+                self.tela_vendas.lineEdit_14.setText('')
+            else:
+                self.tela_vendas.lineEdit_14.setText('')
+                QMessageBox.information(None,'POOII', 'A entrega não foi encontrada')
+        else:
+            self.tela_vendas.lineEdit_14.setText('')
+            QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
+
+
+
+    def botaoExibirEntregas(self):
+        concatena = f'ExibirEntregas'
+        self.server.send(concatena.encode())
+        entregas = self.server.recv(2048)
+        entregas = entregas.decode()
+        
+        entregas = entregas.replace('datetime.date','')
+        entregas = eval(entregas)
+
+        self.tela_vendas.tableWidget_4.setRowCount(len(entregas))
+        self.tela_vendas.tableWidget_4.setColumnCount(7)
+
+        for i in range (0, len(entregas)):
+            for j in range(0,7):
+                self.tela_vendas.tableWidget_4.setItem(i,j,QtWidgets.QTableWidgetItem(str(entregas[i][j])))
 
 
 
@@ -945,6 +1135,41 @@ class Main(QMainWindow, Ui_Main):
 
 
 
+    def BuscarProdutoFuncionario(self):
+        produto_busca = self.tela_estoque_funcionario.lineEdit.text()
+        if not(produto_busca == ''):
+
+            concatena = f'buscar_todos_dados*Estoque*id*{produto_busca}'
+            self.server.send(concatena.encode())
+            lista_produtos = self.server.recv(2048)
+            lista_produtos = lista_produtos.decode()
+
+            lista_produtos = lista_produtos.replace('Decimal','').replace('datetime.date','')
+            lista_produtos = eval(lista_produtos)
+            
+            if(lista_produtos):
+                print("----resultado----",lista_produtos)
+                
+                # lista_produtos = eval(lista_produtos)
+
+                self.tela_estoque_funcionario.tableWidget_2.setRowCount(1)
+                self.tela_estoque_funcionario.tableWidget_2.setColumnCount(7)
+
+                for i in range(0,7):
+                    if(i != 4):
+                        self.tela_estoque_funcionario.tableWidget_2.setItem(0,i,QtWidgets.QTableWidgetItem(str(lista_produtos[0][i])))
+                    else:
+                        self.tela_estoque_funcionario.tableWidget_2.setItem(0,i,QtWidgets.QTableWidgetItem('--'))
+                    self.tela_estoque_funcionario.lineEdit.setText('')
+            else:
+                QMessageBox.information(None,'POOII', 'Valor não encontrado!')
+                self.tela_estoque_funcionario.lineEdit.setText('')
+
+        else:
+            QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
+
+
+
     def ListarProdutos(self):
         concatena = f'ListarProdutos'
         self.server.send(concatena.encode())
@@ -962,17 +1187,44 @@ class Main(QMainWindow, Ui_Main):
                 self.tela_produto.tableWidget_3.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_produtos[i][j])))
 
 
+
+    def ListarProdutosFuncionario(self):
+        concatena = f'ListarProdutos'
+        self.server.send(concatena.encode())
+        lista_produtos = self.server.recv(2048)
+        lista_produtos = lista_produtos.decode()
+        
+        lista_produtos = lista_produtos.replace('Decimal','').replace('datetime.date','')
+        lista_produtos = eval(lista_produtos)
+
+        self.tela_estoque_funcionario.tableWidget_3.setRowCount(len(lista_produtos))
+        self.tela_estoque_funcionario.tableWidget_3.setColumnCount(7)
+
+        for i in range (0, len(lista_produtos)):
+            for j in range(0, 7):
+                if(j != 4):
+                    self.tela_estoque_funcionario.tableWidget_3.setItem(i,j,QtWidgets.QTableWidgetItem(str(lista_produtos[i][j])))
+                else:
+                    self.tela_estoque_funcionario.tableWidget_3.setItem(i,j,QtWidgets.QTableWidgetItem('--'))
+
+
     def voltarTelaInicial(self):
         self.QtStack.setCurrentIndex(0)
         self.tela_login.lineEdit.setText('')
         self.tela_login.lineEdit_2.setText('')
 
+
+
     def sair(self):
         sys.exit()
+
+
 
     def onClicked(self, checkBox):
         if checkBox.isChecked():
             self.opcao_selecionada = checkBox.text()
+
+
 
     def verificar_usuario(self):
         usuario = None
@@ -1015,6 +1267,7 @@ class Main(QMainWindow, Ui_Main):
         for i in range (0, len(dados_hist)):
             for j in range(0,3):
                 self.tela_historico.tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(dados_hist[i][j])))
+
 
 
 if __name__ == '__main__':

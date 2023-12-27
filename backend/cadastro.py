@@ -236,11 +236,11 @@ class Cadastro:
 
 
 
-    def remover_produto(self,produto_remover):
+    def remover_produto(self,id_entrega):
         mydb = self.conectar()
         mycursor = mydb.cursor()
 
-        sql = f'DELETE FROM Estoque WHERE id = {produto_remover};'
+        sql = f'DELETE FROM Estoque WHERE id = {id_entrega};'
         print(sql)
         mycursor.execute(sql)       
         # nome, endereco = result[0][2], result[0][3]
@@ -371,4 +371,48 @@ class Cadastro:
         mycursor.close()
         mydb.close()
         
+        return True
+
+
+
+    def ExibirEntregas(self):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+        
+        mycursor.execute("SELECT * FROM Entrega")
+        entrega = mycursor.fetchall()
+        
+        mydb.close()
+        return entrega
+
+
+
+    def FinalizarEntrega(self,produto_remover):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+
+        sql = f'DELETE FROM Estoque WHERE id = {produto_remover};'
+        print(sql)
+        mycursor.execute(sql)       
+        # nome, endereco = result[0][2], result[0][3]
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+
+        return True
+
+
+
+    def FinalizarEntrega(self,id_entrega):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+
+        sql = f'DELETE FROM Entrega WHERE id = {id_entrega};'
+        print(sql)
+        mycursor.execute(sql)       
+        # nome, endereco = result[0][2], result[0][3]
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+
         return True
