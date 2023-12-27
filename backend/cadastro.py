@@ -251,6 +251,7 @@ class Cadastro:
         return True
 
 
+
     def RemoverProdutoZerado(self):
         mydb = self.conectar()
         mycursor = mydb.cursor()
@@ -331,11 +332,43 @@ class Cadastro:
         # print(produto)
         
         sql = f'UPDATE Estoque SET quantidade = quantidade - {quantidade} WHERE id = {produto};'
-        print("Entrou aqui")
+        print(sql)
         mycursor.execute(sql)
 
         mydb.commit()
         mycursor.close()
         mydb.close()
 
+        return True
+
+
+
+    def BuscarIdVenda(self,produto, quantidade, preco_unitario, total, cliente, responsavel_venda, data_venda):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+
+        sql = f'SELECT id FROM Vendas WHERE produto = {produto} and quantidade = {quantidade} and preco_unitario = {preco_unitario} and total = {total} and cliente = "{cliente}" and responsavel_venda = "{responsavel_venda}" and data_venda = "{data_venda}";'
+        print(sql)
+        mycursor.execute(sql)       
+
+        result = mycursor.fetchall()
+        print(result)
+
+        mydb.close()
+        return result
+
+
+
+    def CadastrarEntrega(self,id_venda,cliente,num_casa, bairro, rua,data):
+        mydb = self.conectar()
+        mycursor = mydb.cursor()
+        
+        sql = f'INSERT INTO Entrega (venda_id, cliente, num_casa, bairro, rua, data_entrega) VALUES ({id_venda},"{cliente}","{num_casa}","{bairro}","{rua}","{data}");'
+        print(sql)
+        mycursor.execute(sql)       
+        
+        mydb.commit()
+        mycursor.close()
+        mydb.close()
+        
         return True
