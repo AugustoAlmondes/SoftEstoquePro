@@ -162,6 +162,8 @@ class Main(QMainWindow, Ui_Main):
         self.tela_vendas.pushButton_5.clicked.connect(self.AbrirTelaVendaEntrega)
         self.tela_vendas.pushButton_7.clicked.connect(self.MostrarDadosTelaVendas)
         self.tela_vendas.pushButton_8.clicked.connect(self.CadastrarEntrega)
+        self.tela_vendas.pushButton_9.clicked.connect(self.TelaVendasFrameRealizarVenda)
+        self.tela_vendas.pushButton_10.clicked.connect(self.TelaVendasFrameTotal)
 
     def abrirTelaBemVindo(self):
         self.QtStack.setCurrentIndex(3)
@@ -217,6 +219,9 @@ class Main(QMainWindow, Ui_Main):
 
     def TelaVendasFrameRealizarVenda(self):
         self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
+    
+    def TelaVendasFrameTotal(self):
+        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
 
 
 
@@ -350,25 +355,32 @@ class Main(QMainWindow, Ui_Main):
                             num_casa = self.tela_vendas.lineEdit_5.text()
                             bairro = self.tela_vendas.lineEdit_6.text()
                             rua = self.tela_vendas.lineEdit_7.text()
-                            print("Leu os campos")
                             
-                            concatena = f'CadastrarEntrega*{id}*{cliente}*{num_casa}*{bairro}*{rua}*{data}'
-                            self.server.send(concatena.encode())
-                            result = self.server.recv(2048)
-                            result = result.decode()
-                            print(result)
-                            print("Cadastrou a entrega")
+                            if(rua != '' or num_casa != '' or bairro == ''):
+                                
+                                concatena = f'CadastrarEntrega*{id}*{cliente}*{num_casa}*{bairro}*{rua}*{data}'
+                                self.server.send(concatena.encode())
+                                result = self.server.recv(2048)
+                                result = result.decode()
+                                print(result)
+                                print("Cadastrou a entrega")
 
-                            mensage_hist = f'Entrega para {cliente} registrada por {funcionario} no dia {data}'                        
-                            concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
-                            self.server.send(concatena.encode())
-                            result = self.server.recv(2048)
-                            result = result.decode()
-                            print("Adicionou Historico")
+                                mensage_hist = f'Entrega para {cliente} registrada por {funcionario} no dia {data}'                        
+                                concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                                self.server.send(concatena.encode())
+                                result = self.server.recv(2048)
+                                result = result.decode()
+                                print("Adicionou Historico")
 
-                            if(result == "True"):
-                                QMessageBox.information(None,'POOII', 'Venda realizada com sucesso')
-                                self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_2)
+                                if(result == "True"):
+                                    QMessageBox.information(None,'POOII', 'Entrega cadastrada com sucesso')
+                                    self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_11)
+                                    self.limpar_campos_vendas()
+                                    self.dados_produtos.clear()
+                            else:
+                                self.tela_vendas.lineEdit_8.setText('None')
+                                QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
+                                self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page)
                                 self.limpar_campos_vendas()
                                 self.dados_produtos.clear()
                         else:
