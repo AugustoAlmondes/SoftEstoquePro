@@ -97,11 +97,12 @@ class Ui_Main(QtWidgets.QWidget):
 
 class Main(QMainWindow, Ui_Main):
     def __init__(self):
-        super(Main, self).__init__(None)
+        super(Main, self).__init__()
         self.setupUi(self)
 
         self.server = server_cliente('192.168.18.107',4050)
         self.dados_produtos = []
+        self.usuario = None
         
         self.opcao_selecionada = None
 
@@ -188,10 +189,25 @@ class Main(QMainWindow, Ui_Main):
 
         #FUNCIONÁRIO
         self.tela_funcionario.pushButton_9.clicked.connect(self.AbrirTelaEstoqueFuncionario)
+        self.tela_funcionario.pushButton_2.clicked.connect(self.abrirTelaVendas)
+        self.tela_funcionario.pushButton_2.clicked.connect(self.TelaVendasFrameInicial)
+        self.tela_funcionario.pushButton_10.clicked.connect(self.abrirTelaHistorico)
+        self.tela_funcionario.pushButton_10.clicked.connect(self.botaoExibirHistorico)
 
     def abrirTelaBemVindo(self):
-        self.QtStack.setCurrentIndex(3)
-        self.RemoverProdutoZeradoEstoque()
+        if(self.usuario == 'Administrador'):
+            self.QtStack.setCurrentIndex(3)
+            self.RemoverProdutoZeradoEstoque()
+        elif(self.usuario == 'Funcionario'):
+            self.QtStack.setCurrentIndex(4)
+            self.RemoverProdutoZeradoEstoque()
+        if(self.usuario == 'Entregador'):
+            self.QtStack.setCurrentIndex(0)
+            self.tela_login.lineEdit.setText('')
+            self.tela_login.lineEdit_2.setText('')
+        elif(self.usuario == 'Fornecedor'):
+            self.QtStack.setCurrentIndex(6)
+
 
     def AbrirTelaFuncionario(self):
         self.QtStack.setCurrentIndex(4)
@@ -289,7 +305,7 @@ class Main(QMainWindow, Ui_Main):
                 
                 if(result == 'True'):
                     data = date.today()
-                    mensage_hist = f'Entrega de id {codigo} finalizada'
+                    mensage_hist = f'Entrega de id {codigo} finalizada pelo Usuário {self.usuario}'
                     concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
                     self.server.send(concatena.encode())
                     result = self.server.recv(2048)
@@ -874,6 +890,7 @@ class Main(QMainWindow, Ui_Main):
         print("----recebeu----")
 
         print(usuario)
+        self.usuario = usuario
         
         if(usuario):
             # print('Cpf login',cpf)
@@ -892,12 +909,23 @@ class Main(QMainWindow, Ui_Main):
             if (result):
                 if usuario == 'Administrador':
                     self.QtStack.setCurrentIndex(3)
+                    self.tela_vendas.label.setText('VENDAS')
+                    self.tela_vendas.pushButton_14.setVisible(True)
+                    self.tela_vendas.pushButton_2.setVisible(True)
                 elif usuario == 'Funcionario':
                     self.QtStack.setCurrentIndex(4)
+                    self.tela_vendas.label.setText('VENDAS')
+                    self.tela_vendas.pushButton_14.setVisible(True)
+                    self.tela_vendas.pushButton_2.setVisible(True)
                 elif usuario == 'Fornecedor':
                     self.QtStack.setCurrentIndex(5)
                 elif usuario == 'Entregador':
-                    self.QtStack.setCurrentIndex(6)
+                    self.QtStack.setCurrentIndex(10)
+                    self.tela_vendas.pushButton_14.setVisible(False)
+                    self.tela_vendas.pushButton_2.setVisible(False)
+                    self.tela_vendas.label.setText('Entregador')
+                    self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_7)
+                    # self.tela_entregador.PAGINAS.setCurrentWidget(self.tela_entregador.page_7)
             else:
                 QMessageBox.information(None,'POOII', 'CPF ou senha não encontrado')
                 self.tela_login.lineEdit.setText('')
