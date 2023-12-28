@@ -210,7 +210,12 @@ class Main(QMainWindow, Ui_Main):
 
 
     def AbrirTelaFuncionario(self):
-        self.QtStack.setCurrentIndex(4)
+        if(self.usuario == 'Funcionario'):
+            self.QtStack.setCurrentIndex(4)
+        else:
+            self.QtStack.setCurrentIndex(0)
+            self.tela_login.lineEdit.setText('')
+            self.tela_login.lineEdit_2.setText('')
 
     def abrirTelaCadastro(self):
         self.QtStack.setCurrentIndex(1)
@@ -831,40 +836,63 @@ class Main(QMainWindow, Ui_Main):
         nascimento = self.tela_cadastro.lineEdit_4.text()
         senha = self.tela_cadastro.lineEdit_6.text()
 
+        print(len(cpf))
+        print(len(senha))
+        
         usuario = self.verificar_usuario()
-
-        if usuario != None:
-            if not(nome == '' or endereco == '' or cpf == '' or nascimento == '' or senha == ''):
-                # p = Pessoa(cpf,nome,endereco,nascimento,senha,usuario)
-                concatena = f'cadastra_ususario*{cpf}*{nome}*{endereco}*{nascimento}*{senha}*{usuario}'
-                self.server.send(concatena.encode())
-                resposta = self.server.recv(2048)
-                resposta = resposta.decode()
-                print(resposta)
-                print("----recebeu----")
-
-                if (resposta):
+        
+        if(len(cpf) == 11 and len(senha) >= 8):
+            if usuario != None:
+                if not(nome == '' or endereco == '' or cpf == '' or nascimento == '' or senha == ''):
                     
-                    data = date.today()
-                    mensage_hist = f'Cadastro do Usuário {nome} do tipo {usuario}'
-                    
-                    concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                    concatena = f'buscar_todos_dados*usuarios*cpf*{cpf}'
                     self.server.send(concatena.encode())
-                    result = self.server.recv(2048)
-                    result = result.decode()
+                    resposta = self.server.recv(2048)
+                    resposta = resposta.decode()
+
+                    resposta = eval(resposta)
                     
-                    QMessageBox.information(None,'POOII', 'Cadastro realizado com sucesso!')
+                    print("A resposta eh",resposta)
+                    
+                    if(not(resposta)):
+                        # p = Pessoa(cpf,nome,endereco,nascimento,senha,usuario)
+                        senha_codificada = senha.encode('utf-8')  # Codificar a senha para bytes
+                        hashed = bcrypt.hashpw(senha_codificada, bcrypt.gensalt())
+                        concatena = f'cadastra_ususario*{cpf}*{nome}*{endereco}*{nascimento}*{hashed}*{usuario}'
+                        self.server.send(concatena.encode())
+                        resposta = self.server.recv(2048)
+                        resposta = resposta.decode()
+                        print(resposta)
+                        print("----recebeu----")
+
+                        if (resposta):
+                            
+                            data = date.today()
+                            mensage_hist = f'Cadastro do Usuário {nome} do tipo {usuario}'
+                            
+                            concatena = f'AdicionarHistorico*{mensage_hist}*{data}'
+                            self.server.send(concatena.encode())
+                            result = self.server.recv(2048)
+                            result = result.decode()
+                            
+                            QMessageBox.information(None,'POOII', 'Cadastro realizado com sucesso!')
+                        else:
+                            QMessageBox.information(None,'POOII', 'Erro ao realizar o Cadastro')
+                    else:
+                        QMessageBox.information(None,'POOII', 'CPF ja cadastrado no Sistema')
+                        self.limpar_campos_cad()
                 else:
-                    QMessageBox.information(None,'POOII', 'Erro ao realizar o Cadastro')
+                    QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
+                    self.limpar_campos_cad()
             else:
-                QMessageBox.information(None,'POOII', 'Todos os valores devem ser preenchidos!')
+                QMessageBox.information(None,'POOII', 'Selecione um tipo de Usuário!')
                 self.limpar_campos_cad()
-        else:
-            QMessageBox.information(None,'POOII', 'Selecione um tipo de Usuário!')
+            self.QtStack.setCurrentIndex(3)
             self.limpar_campos_cad()
-        self.QtStack.setCurrentIndex(3)
-        self.limpar_campos_cad()
-        usuario = None
+            usuario = None
+        else:
+            QMessageBox.information(None,'POOII', 'CPF deve possuir 11 dígitos\nSenha deve ser maior ou igual a 8 dígitos')
+            self.limpar_campos_cad()
 
 
 
@@ -882,61 +910,67 @@ class Main(QMainWindow, Ui_Main):
         
         cpf = self.tela_login.lineEdit.text()
         senha = self.tela_login.lineEdit_2.text()
-        concatena = f'procurar_dado_especifico*usuario*usuarios*cpf*{cpf}'
-
-        self.server.send(concatena.encode())
-        usuario = self.server.recv(2048)
-        usuario = usuario.decode()
-        print("----recebeu----")
-
-        print(usuario)
-        self.usuario = usuario
         
-        if(usuario):
-            # print('Cpf login',cpf)
-            # print('Senha login',senha)
-            # concatena = f'procurar_dado_especifico*usuario*usuarios*cpf*{cpf}'
-            # usuario = self.cad.procurar_dado_especifico('usuario','usuarios','cpf',cpf)
-            # print('Usuario retornado:',usuario)
-            print('usuario login',usuario)
-            
-            concatena = f'buscar_usuario*{cpf}*{senha}'
+        if(cpf != '' and senha != ''):
+            concatena = f'procurar_dado_especifico*usuario*usuarios*cpf*{cpf}'
 
             self.server.send(concatena.encode())
-            result = self.server.recv(2048)
-            result = result.decode()
+            usuario = self.server.recv(2048)
+            usuario = usuario.decode()
+            print("----recebeu----")
+
+            print(usuario)
+            self.usuario = usuario
             
-            if (result):
-                if usuario == 'Administrador':
-                    self.QtStack.setCurrentIndex(3)
-                    self.tela_vendas.label.setText('VENDAS')
-                    self.tela_vendas.pushButton_14.setVisible(True)
-                    self.tela_vendas.pushButton_2.setVisible(True)
-                elif usuario == 'Funcionario':
-                    self.QtStack.setCurrentIndex(4)
-                    self.tela_vendas.label.setText('VENDAS')
-                    self.tela_vendas.pushButton_14.setVisible(True)
-                    self.tela_vendas.pushButton_2.setVisible(True)
-                elif usuario == 'Fornecedor':
-                    self.QtStack.setCurrentIndex(5)
-                elif usuario == 'Entregador':
-                    self.QtStack.setCurrentIndex(10)
-                    self.tela_vendas.pushButton_14.setVisible(False)
-                    self.tela_vendas.pushButton_2.setVisible(False)
-                    self.tela_vendas.label.setText('Entregador')
-                    self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_7)
-                    # self.tela_entregador.PAGINAS.setCurrentWidget(self.tela_entregador.page_7)
+            if(usuario):
+                # print('Cpf login',cpf)
+                # print('Senha login',senha)
+                # concatena = f'procurar_dado_especifico*usuario*usuarios*cpf*{cpf}'
+                # usuario = self.cad.procurar_dado_especifico('usuario','usuarios','cpf',cpf)
+                # print('Usuario retornado:',usuario)
+                print('usuario login',usuario)
+                
+                # concatena = f'buscar_usuario*{cpf}*{senha}'
+                senha.encode('utf-8')
+                concatena = f'Login*{cpf}*{senha}*{usuario}'
+
+                self.server.send(concatena.encode())
+                result = self.server.recv(2048)
+                result = result.decode()
+                
+                if (result):
+                    if usuario == 'Administrador':
+                        self.QtStack.setCurrentIndex(3)
+                        self.tela_vendas.label.setText('VENDAS')
+                        self.tela_vendas.pushButton_14.setVisible(True)
+                        self.tela_vendas.pushButton_2.setVisible(True)
+                    elif usuario == 'Funcionario':
+                        self.QtStack.setCurrentIndex(4)
+                        self.tela_vendas.label.setText('VENDAS')
+                        self.tela_vendas.pushButton_14.setVisible(True)
+                        self.tela_vendas.pushButton_2.setVisible(True)
+                    elif usuario == 'Fornecedor':
+                        self.QtStack.setCurrentIndex(11)
+                    elif usuario == 'Entregador':
+                        self.QtStack.setCurrentIndex(10)
+                        self.tela_vendas.pushButton_14.setVisible(False)
+                        self.tela_vendas.pushButton_2.setVisible(False)
+                        self.tela_vendas.label.setText('Entregador')
+                        self.tela_vendas.PAGINAS.setCurrentWidget(self.tela_vendas.page_7)
+                        # self.tela_entregador.PAGINAS.setCurrentWidget(self.tela_entregador.page_7)
+                else:
+                    QMessageBox.information(None,'POOII', 'CPF ou senha não encontrado')
+                    self.tela_login.lineEdit.setText('')
+                    self.tela_login.lineEdit_2.setText('')
             else:
-                QMessageBox.information(None,'POOII', 'CPF ou senha não encontrado')
+                QMessageBox.information(None,'POOII', 'Erro na busca do Usuário')
                 self.tela_login.lineEdit.setText('')
                 self.tela_login.lineEdit_2.setText('')
+            usuario = None
         else:
-            QMessageBox.information(None,'POOII', 'Erro na busca do Usuário')
+            QMessageBox.information(None,'POOII', 'Todos os campos devem estar preenchido')
             self.tela_login.lineEdit.setText('')
             self.tela_login.lineEdit_2.setText('')
-        usuario = None
-
-
 
     def botaoExibirAdministradores(self):
         

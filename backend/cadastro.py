@@ -70,6 +70,34 @@ class Cadastro:
 
 # ------------------------------------------------------------
 # ------------------------USUARIO-----------------------------
+    def Login(self,cpf,senha, usuario):
+        if not(self.busca(cpf,'usuarios',"cpf")):
+            
+            # senha_codificada = senha.encode('utf-8')
+            sql = f'SELECT * from usuarios where usuario = "{usuario}" and cpf = "{cpf}"'
+            print(sql)
+            mydb = self.conectar()
+            mycursor = mydb.cursor()
+            mycursor.execute(sql)
+            result = mycursor.fetchall()
+            
+            print(senha ,'do tipo',type(senha.encode('utf-8')))
+            # print(senha_codificada)
+            print(result[0][5], 'do tipo', type(result[0][5].encode('utf-8')))
+            
+            senha_codificada = str(senha)
+            result_codificado = str(result[0][5])
+            senha_codificada = senha_codificada.encode('utf-8')
+            # result_codificado = result_codificado.encode('utf-8')
+            result_codificado = eval(result_codificado)
+            print(senha_codificada, result_codificado)
+            
+            if(cpf == result[0][3] and bcrypt.checkpw(senha_codificada, result_codificado)):
+                return True
+            else:
+                return False
+        else:
+            return False
 
 
 
@@ -98,15 +126,13 @@ class Cadastro:
     def cadastra_ususario(self,cpf,nome,endereco,nascimento,senha,usuario):
         print("entrou no cadastrar_usuario")
         if (self.busca(cpf,'usuarios','cpf')):
-            senha_codificada = senha.encode('utf-8')  # Codificar a senha para bytes
-            hashed = bcrypt.hashpw(senha_codificada, bcrypt.gensalt())
             print('entrou')
             mydb = self.conectar()
             mycursor = mydb.cursor()
 
             # banco_dados = self.verificar_banco_dados(usuario)
 
-            sql = f'INSERT INTO usuarios (nome, endereco, cpf, nascimento, senha, usuario) VALUES ("{nome}", "{endereco}","{cpf}", "{nascimento}", "{hashed}", "{usuario}")'
+            sql = f'INSERT INTO usuarios (nome, endereco, cpf, nascimento, senha, usuario) VALUES ("{nome}", "{endereco}","{cpf}", "{nascimento}", "{senha}", "{usuario}")'
 
             mycursor.execute(sql)
 
