@@ -160,7 +160,7 @@ class Main(QMainWindow, Ui_Main):
         super(Main, self).__init__()
         self.setupUi(self)
 
-        self.server = server_cliente('192.168.18.107',4050)
+        self.server = server_cliente('10.180.47.163',4050)
         self.dados_produtos = []
         self.usuario = None
         
