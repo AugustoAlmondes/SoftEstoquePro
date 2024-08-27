@@ -1,4 +1,4 @@
-# EstoquePro
+# SoftEstoquePro
 
 **EstoquePro** é um software de controle de estoque desenvolvido em Python, utilizando o banco de dados MySQL e a biblioteca PyQt para a interface gráfica. Este software foi projetado para ajudar pequenas e médias empresas a gerenciar seu estoque de forma eficiente, oferecendo uma interface amigável e funcionalidades robustas para o monitoramento e controle de produtos.
 
