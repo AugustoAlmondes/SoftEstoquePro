@@ -79,8 +79,8 @@ class Cadastro:
         conectar = mysql.connect(
         host="localhost",
         user="root",
-        password="play2233",
-        database="POO2"
+        password="suasenha",
+        database="suabasededados"
         )
 
         return conectar
